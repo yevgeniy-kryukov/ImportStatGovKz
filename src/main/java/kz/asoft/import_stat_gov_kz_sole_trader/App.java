@@ -6,8 +6,8 @@ package kz.asoft.import_stat_gov_kz_sole_trader;
  */
 public class App 
 {
-    public static void main( String[] args )
-    {
-        System.out.println( "Hello World!" );
+    public static void main(String[] args) {
+        new FileDownloader().getFile(742681);
     }
+
 }
