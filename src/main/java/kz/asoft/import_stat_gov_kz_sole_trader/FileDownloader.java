@@ -46,7 +46,7 @@ public class FileDownloader {
                     lastCutId = id;
                 }
             }
-            System.out.println(lastCutId);
+            //System.out.println(lastCutId);
 
             // Отправление запроса на выборку и получение номера заявки
             url = new URL("https://stat.gov.kz/api/sbr/request/?api");

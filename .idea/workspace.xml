@@ -5,12 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="82623d39-98a9-4e70-88a8-b401f6b33970" name="Changes" comment="first commit">
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/kz/asoft/import_stat_gov_kz_sole_trader/FileDownloader.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/kz/asoft/import_stat_gov_kz_sole_trader/HttpDownloadUtility.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/kz/asoft/import_stat_gov_kz_sole_trader/App.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/kz/asoft/import_stat_gov_kz_sole_trader/App.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/kz/asoft/import_stat_gov_kz_sole_trader/FileDownloader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/kz/asoft/import_stat_gov_kz_sole_trader/FileDownloader.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,6 +37,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "D:/_project_info/ImportStatGovKzSoleTrader",
     "nodejs_package_manager_path": "npm",
     "settings.editor.selected.configurable": "vcs.Git"
   }
@@ -85,6 +81,7 @@
       <option name="presentableId" value="Default" />
       <updated>1655034556873</updated>
       <workItem from="1655034558203" duration="11462000" />
+      <workItem from="1655105511484" duration="41000" />
     </task>
     <task id="LOCAL-00001" summary="first commit">
       <created>1655035685314</created>
