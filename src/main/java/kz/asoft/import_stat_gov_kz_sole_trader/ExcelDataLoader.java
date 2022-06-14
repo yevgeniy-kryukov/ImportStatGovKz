@@ -7,14 +7,14 @@ import org.apache.poi.ss.usermodel.Workbook;
 import com.monitorjbl.xlsx.StreamingReader;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.file.Files;
 
 public class ExcelDataLoader {
     public void loadDataFile(String fileLocation) throws Exception {
         org.apache.log4j.PropertyConfigurator.configure("log4j.properties");
 
-        InputStream is = new FileInputStream(new File(fileLocation));
+        InputStream is = Files.newInputStream(new File(fileLocation).toPath());
         Workbook workbook = StreamingReader.builder()
                 .rowCacheSize(100)    // number of rows to keep in memory (defaults to 10)
                 .bufferSize(4096)     // buffer size to use when reading InputStream to file (defaults to 1024)
