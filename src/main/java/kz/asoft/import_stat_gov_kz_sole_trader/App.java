@@ -13,16 +13,18 @@ public class App
 {
     public static void main(String[] args) {
         try {
-            // считываем настройки
-            final Properties props = new Properties();
-            try(InputStream in = Files.newInputStream(Paths.get("app.properties"))) {
-                props.load(in);
-            }
-            // скачиваем файл
-            FileDownloader fd = new FileDownloader();
-            String fileName = fd.getFile(742681, props.getProperty("downloadDir"));
-            // разархивируем файл
-            new UnzipUtility().unzip(props.getProperty("downloadDir") + "\\" + fileName, props.getProperty("downloadDir"));
+//            // считываем настройки
+//            final Properties props = new Properties();
+//            try(InputStream in = Files.newInputStream(Paths.get("app.properties"))) {
+//                props.load(in);
+//            }
+//            // скачиваем файл
+//            FileDownloader fd = new FileDownloader();
+//            String fileName = fd.getFile(742681, props.getProperty("downloadDir"));
+//            // разархивируем файл
+//            new UnzipUtility().unzip(props.getProperty("downloadDir") + "\\" + fileName, props.getProperty("downloadDir"));
+
+            new ExcelDataLoader().loadDataFile("C:\\Windows\\Temp\\request-4286c2b12e6bbfdc4bc079caef7fc2ce.xlsx");
 
         } catch (Exception e) {
             e.printStackTrace();

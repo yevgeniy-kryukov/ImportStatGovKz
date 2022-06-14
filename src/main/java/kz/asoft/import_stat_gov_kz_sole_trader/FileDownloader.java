@@ -1,12 +1,7 @@
 package kz.asoft.import_stat_gov_kz_sole_trader;
 
-import java.io.IOException;
 import java.net.*;
 import org.json.*;
-import java.util.Properties;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.io.InputStream;
 
 public class FileDownloader {
 
