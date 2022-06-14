@@ -4,10 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="82623d39-98a9-4e70-88a8-b401f6b33970" name="Changes" comment="3">
+    <list default="true" id="82623d39-98a9-4e70-88a8-b401f6b33970" name="Changes" comment="4">
+      <change afterPath="$PROJECT_DIR$/src/main/java/kz/asoft/import_stat_gov_kz_sole_trader/UnzipUtility.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/kz/asoft/import_stat_gov_kz_sole_trader/App.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/kz/asoft/import_stat_gov_kz_sole_trader/App.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/kz/asoft/import_stat_gov_kz_sole_trader/FileDownloader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/kz/asoft/import_stat_gov_kz_sole_trader/FileDownloader.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/kz/asoft/import_stat_gov_kz_sole_trader/HttpDownloadUtility.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/kz/asoft/import_stat_gov_kz_sole_trader/HttpUtility.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/kz/asoft/import_stat_gov_kz_sole_trader/HttpUtility.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -46,11 +47,14 @@
   }
 }]]></component>
   <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\_project_info\ImportStatGovKzSoleTrader\src" />
+    </key>
     <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
       <recent name="kz.asoft.import_stat_gov_kz_sole_trader" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.App">
+  <component name="RunManager" selected="JAR Application.ImportStatGovKzSoleTrader-1.0-SNAPSHOT.jar">
     <configuration name="App" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="kz.asoft.import_stat_gov_kz_sole_trader.App" />
       <module name="ImportStatGovKzSoleTrader" />
@@ -70,8 +74,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.App" />
         <item itemvalue="JAR Application.ImportStatGovKzSoleTrader-1.0-SNAPSHOT.jar" />
+        <item itemvalue="Application.App" />
       </list>
     </recent_temporary>
   </component>
@@ -84,7 +88,7 @@
       <option name="presentableId" value="Default" />
       <updated>1655034556873</updated>
       <workItem from="1655034558203" duration="11462000" />
-      <workItem from="1655105511484" duration="12403000" />
+      <workItem from="1655105511484" duration="25116000" />
     </task>
     <task id="LOCAL-00001" summary="first commit">
       <created>1655035685314</created>
@@ -107,7 +111,14 @@
       <option name="project" value="LOCAL" />
       <updated>1655118202050</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="4">
+      <created>1655123443443</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1655123443443</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -128,6 +139,7 @@
     <MESSAGE value="first commit" />
     <MESSAGE value="2" />
     <MESSAGE value="3" />
-    <option name="LAST_COMMIT_MESSAGE" value="3" />
+    <MESSAGE value="4" />
+    <option name="LAST_COMMIT_MESSAGE" value="4" />
   </component>
 </project>
