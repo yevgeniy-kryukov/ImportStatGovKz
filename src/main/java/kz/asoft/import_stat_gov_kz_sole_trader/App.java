@@ -35,10 +35,10 @@ public class App
                     return;
                 }
 
-                Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("10.1.20.15", 8888));
+                //Proxy proxy = null; //new Proxy(Proxy.Type.HTTP, new InetSocketAddress("10.1.20.15", 8888));
 
                 // Получение списка срезов
-                String jsonString = new HttpUtility().get("https://stat.gov.kz/api/rcut/ru", proxy);
+                String jsonString = new HttpUtility().get("https://stat.gov.kz/api/rcut/ru");
                 if (jsonString == null) {
                     throw new Exception("Ошибка! Не удалось получить список срезов");
                 }
@@ -73,26 +73,25 @@ public class App
                 }
 
                 int pid;
+                int typeLegalUnitId;
                 String[] files;
                 FilenameFilter filter = (f, name) -> name.endsWith(".xlsx");
                 final String sqlText2 = "SELECT id FROM stat_gov_kz.d_type_legal_unit WHERE is_updated = true";
                 try(Statement statement = conn.createStatement();
                     ResultSet resultSet = statement.executeQuery(sqlText2);) {
                     while (resultSet.next()) {
-                        pid = log.startProcess(cutId, resultSet.getInt("id"));
+                        typeLegalUnitId = resultSet.getInt("id");
+                        pid = log.startProcess(cutId, typeLegalUnitId);
                         try {
                             // скачиваем файл
-                            String fileName = new FileDownloader(proxy).getFile(cutId,
-                                    resultSet.getInt("id"),
-                                    listSitCodes,
-                                    props.getProperty("downloadDir"));
+                            String fileName = new FileDownloader().getFile(cutId, typeLegalUnitId, listSitCodes, props.getProperty("downloadDir"));
+                            String unzipPath = props.getProperty("downloadDir") + "\\" + fileName.split("\\.")[0];
                             // разархивируем файл
-                            new UnzipUtility().unzip(props.getProperty("downloadDir") + "\\" + fileName,
-                                    props.getProperty("downloadDir") + "\\" + fileName.split(".")[0]);
+                            new UnzipUtility().unzip(props.getProperty("downloadDir") + "\\" + fileName, unzipPath);
                             // загружаем данные с файла(ов)
-                            files = new File(props.getProperty("downloadDir") + "\\" + fileName).list(filter);
+                            files = new File(unzipPath).list(filter);
                             for (String file : files) {
-                                new ExcelDataLoader(conn).loadDataFile(file, cutId);
+                                new ExcelDataLoader(conn).loadDataFile(unzipPath + "\\" + file, cutId, typeLegalUnitId);
                             }
                             log.finishProcess(pid, null);
                         } catch (Exception e) {

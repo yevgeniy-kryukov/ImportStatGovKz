@@ -5,11 +5,11 @@ import java.net.*;
 import java.nio.charset.StandardCharsets;
 
 public class HttpUtility {
-    public String get(String strURL, Proxy proxy) throws IOException  {
+    public String get(String strURL) throws IOException  {
         try {
             // Получение списка срезов
             URL url = new URL(strURL);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection(proxy);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Accept", "application/json");
 
@@ -41,10 +41,10 @@ public class HttpUtility {
         return null;
     }
 
-    public String post(String strURL, String strParam, Proxy proxy) throws IOException  {
+    public String post(String strURL, String strParam) throws IOException  {
         try {
             URL url = new URL(strURL);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection(proxy);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json");
@@ -88,9 +88,9 @@ public class HttpUtility {
      * @param proxy
      * @throws IOException
      */
-    public String downloadFile(String fileURL, String saveDir, Proxy proxy) throws Exception {
+    public String downloadFile(String fileURL, String saveDir) throws Exception {
         URL url = new URL(fileURL);
-        HttpURLConnection httpConn = (HttpURLConnection) url.openConnection(proxy);
+        HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
         int responseCode = httpConn.getResponseCode();
 
         String fileName = "";

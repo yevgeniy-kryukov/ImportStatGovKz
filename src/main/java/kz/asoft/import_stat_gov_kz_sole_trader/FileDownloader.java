@@ -4,11 +4,6 @@ import java.net.*;
 import org.json.*;
 
 public class FileDownloader {
-    private final Proxy proxy;
-
-    FileDownloader(Proxy proxy) {
-        this.proxy = proxy;
-    }
 
     public String getFile(int cutId, int typeLegalUnitId, String listSitCodes, String downloadDir) throws Exception  {
 
@@ -18,7 +13,7 @@ public class FileDownloader {
                         "{\"classVersionId\":1989,\"itemIds\":[" +  listSitCodes + "]}" +
                         "]," +
                         "\"cutId\":" + cutId + ",\"stringForMD5\":\"string\"}";
-        String jsonString2 = new HttpUtility().post("https://stat.gov.kz/api/sbr/request/?api", input, proxy);
+        String jsonString2 = new HttpUtility().post("https://stat.gov.kz/api/sbr/request/?api", input);
         JSONObject jo2 = new JSONObject(jsonString2);
         if (!jo2.getBoolean("success")) {
             throw new Exception("Ошибка! Запрос на выборку не обработан");
@@ -30,7 +25,7 @@ public class FileDownloader {
         JSONObject jo3 = null;
         String fileGuid = "";
         for (int i = 1; i <= 5; i++) {
-            jsonString3 = new HttpUtility().get("https://stat.gov.kz/api/sbr/requestResult/" + objNumber + "/ru", proxy);
+            jsonString3 = new HttpUtility().get("https://stat.gov.kz/api/sbr/requestResult/" + objNumber + "/ru");
             jo3 = new JSONObject(jsonString3);
 
             if (!jo3.getBoolean("success")) {
@@ -50,6 +45,6 @@ public class FileDownloader {
         //System.out.println("fileGuid " + fileGuid);
 
         // Загрузка zip-архива среза
-        return new HttpUtility().downloadFile("https://stat.gov.kz/api/sbr/download?bucket=SBR_UREQUEST&guid=" + fileGuid, downloadDir, proxy);
+        return new HttpUtility().downloadFile("https://stat.gov.kz/api/sbr/download?bucket=SBR_UREQUEST&guid=" + fileGuid, downloadDir);
     }
 }
