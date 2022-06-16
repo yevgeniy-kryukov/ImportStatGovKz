@@ -4,7 +4,7 @@ import java.sql.*;
 import java.text.SimpleDateFormat;
 
 public class Log {
-    private Connection conn;
+    private final Connection conn;
 
     Log(Connection conn) {
         this.conn = conn;

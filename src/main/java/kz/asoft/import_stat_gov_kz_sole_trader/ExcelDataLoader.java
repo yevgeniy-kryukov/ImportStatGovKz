@@ -13,9 +13,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 
 public class ExcelDataLoader {
-    public void loadDataFile(String fileLocation) throws Exception {
-        final Connection conn = ConnDB.getConnection();
+    private final Connection conn;
 
+    ExcelDataLoader(Connection conn) {
+        this.conn = conn;
+    }
+
+    public void loadDataFile(String fileLocation, int cutId) throws Exception {
         final String sqlText = "INSERT INTO stat_gov_kz.g_legal (" +
                                 "bin_iin," +
                                 "full_name_kz," +
@@ -33,9 +37,10 @@ public class ExcelDataLoader {
                                 "locality_name," +
                                 "legal_address," +
                                 "leader_name," +
-                                "date_cut" +
+                                "cut_id," +
+                                "gl_person_id" +
                                 ") " +
-                                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         final PreparedStatement preparedStatement = conn.prepareStatement(sqlText);
 
         org.apache.log4j.PropertyConfigurator.configure("log4j.properties");
@@ -46,13 +51,13 @@ public class ExcelDataLoader {
                 .bufferSize(4096)     // buffer size to use when reading InputStream to file (defaults to 1024)
                 .open(is);            // InputStream or File for XLSX file (required)
 
-        for (Sheet sheet : workbook){
+        for (Sheet sheet : workbook) {
             System.out.println(sheet.getSheetName());
             rowloop:
             for (Row r : sheet) {
-//                if (r.getRowNum() == 10) {
-//                    return;
-//                }
+                if (r.getRowNum() == 10) {
+                    return;
+                }
                 for (Cell c : r) {
                     if (c.getColumnIndex() == 0) {
                         try {
@@ -66,7 +71,8 @@ public class ExcelDataLoader {
                     //System.out.println(c.getStringCellValue());
                     preparedStatement.setString(c.getColumnIndex() + 1, c.getStringCellValue());
                 }
-                preparedStatement.setString(17, "01.06.2022");
+                preparedStatement.setInt(17, cutId);
+                preparedStatement.setInt(18, -1);
                 final int rowsCount = preparedStatement.executeUpdate();
             }
         }

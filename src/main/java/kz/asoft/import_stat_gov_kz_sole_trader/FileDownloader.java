@@ -4,14 +4,18 @@ import java.net.*;
 import org.json.*;
 
 public class FileDownloader {
-    private Proxy proxy;
+    private final Proxy proxy;
 
-    public String getFile(int cutId, int typeLegalUnitId, String downloadDir) throws Exception  {
+    FileDownloader(Proxy proxy) {
+        this.proxy = proxy;
+    }
+
+    public String getFile(int cutId, int typeLegalUnitId, String listSitCodes, String downloadDir) throws Exception  {
 
         // Отправление запроса на выборку и получение номера заявки
         String input = "{\"conditions\":[" +
                 "        {\"classVersionId\":2153,\"itemIds\":[" + typeLegalUnitId + "]}," +
-                        "{\"classVersionId\":1989,\"itemIds\":[39354,39355,39356,39358,534829,39359]}" +
+                        "{\"classVersionId\":1989,\"itemIds\":[" +  listSitCodes + "]}" +
                         "]," +
                         "\"cutId\":" + cutId + ",\"stringForMD5\":\"string\"}";
         String jsonString2 = new HttpUtility().post("https://stat.gov.kz/api/sbr/request/?api", input, proxy);

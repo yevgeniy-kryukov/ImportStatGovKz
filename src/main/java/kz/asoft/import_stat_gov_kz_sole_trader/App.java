@@ -2,6 +2,8 @@ package kz.asoft.import_stat_gov_kz_sole_trader;
 
 import org.json.JSONArray;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.sql.Connection;
@@ -42,38 +44,61 @@ public class App
                 }
 
                 // Находим идентификатор последнего среза
-                int lastCutId = -1;
-                String lastCutName = "";
+                int cutId = -1;
+                String cutName = "";
                 JSONArray ja = new JSONArray(jsonString.toString());
                 for (int i = 0; i < ja.length(); i++) {
                     int id = ja.getJSONObject(i).getInt("id");
-                    if (id > lastCutId) {
-                        lastCutId = id;
-                        lastCutName = ja.getJSONObject(i).getString("name");
+                    if (id > cutId) {
+                        cutId = id;
+                        cutName = ja.getJSONObject(i).getString("name");
                     }
                 }
 
-                if (lastCutId == -1) {
+                if (cutId == -1) {
                     return;
                 }
 
-                if (!log.isExistsCut(lastCutId)) {
-                    log.addCut(lastCutId, lastCutName);
+                if (!log.isExistsCut(cutId)) {
+                    log.addCut(cutId, cutName);
                 }
 
-                final String sqlText = "SELECT id FROM stat_gov_kz.d_type_legal_unit WHERE is_updated = true";
+                String listSitCodes = "";
+                final String sqlText = "SELECT string_agg(id, ',') as lst FROM stat_gov_kz.d_situational_codes WHERE is_updated = true";
                 try(Statement statement = conn.createStatement();
                     ResultSet resultSet = statement.executeQuery(sqlText);) {
                     while (resultSet.next()) {
-                        log.startProcess(lastCutId, resultSet.getInt("id"));
+                        listSitCodes = resultSet.getString("lst");
+                    }
+                }
 
-                        //            // скачиваем файл
-                        //            FileDownloader fd = new FileDownloader(proxy);
-                        //            String fileName = fd.getFile(lastCutId, 742681, props.getProperty("downloadDir"));
-                        //            // разархивируем файл
-                        //            new UnzipUtility().unzip(props.getProperty("downloadDir") + "\\" + fileName, props.getProperty("downloadDir"));
-
-                        new ExcelDataLoader().loadDataFile("C:\\Windows\\Temp\\request-4286c2b12e6bbfdc4bc079caef7fc2ce.xlsx");
+                int pid;
+                String[] files;
+                FilenameFilter filter = (f, name) -> name.endsWith(".xlsx");
+                final String sqlText2 = "SELECT id FROM stat_gov_kz.d_type_legal_unit WHERE is_updated = true";
+                try(Statement statement = conn.createStatement();
+                    ResultSet resultSet = statement.executeQuery(sqlText2);) {
+                    while (resultSet.next()) {
+                        pid = log.startProcess(cutId, resultSet.getInt("id"));
+                        try {
+                            // скачиваем файл
+                            String fileName = new FileDownloader(proxy).getFile(cutId,
+                                    resultSet.getInt("id"),
+                                    listSitCodes,
+                                    props.getProperty("downloadDir"));
+                            // разархивируем файл
+                            new UnzipUtility().unzip(props.getProperty("downloadDir") + "\\" + fileName,
+                                    props.getProperty("downloadDir") + "\\" + fileName.split(".")[0]);
+                            // загружаем данные с файла(ов)
+                            files = new File(props.getProperty("downloadDir") + "\\" + fileName).list(filter);
+                            for (String file : files) {
+                                new ExcelDataLoader(conn).loadDataFile(file, cutId);
+                            }
+                            log.finishProcess(pid, null);
+                        } catch (Exception e) {
+                            log.finishProcess(pid, e.getMessage());
+                            throw e;
+                        }
                     }
                 }
             }
