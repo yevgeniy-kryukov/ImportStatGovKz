@@ -5,11 +5,22 @@ import java.net.*;
 import java.nio.charset.StandardCharsets;
 
 public class HttpUtility {
+    private Proxy proxy;
+
+    HttpUtility(Proxy proxy) {
+        this.proxy = proxy;
+    }
+
     public String get(String strURL) throws IOException  {
         try {
             // Получение списка срезов
             URL url = new URL(strURL);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            HttpURLConnection conn;
+            if (proxy != null) {
+                conn = (HttpURLConnection) url.openConnection(proxy);
+            } else {
+                conn = (HttpURLConnection) url.openConnection();
+            }
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Accept", "application/json");
 
@@ -44,7 +55,12 @@ public class HttpUtility {
     public String post(String strURL, String strParam) throws IOException  {
         try {
             URL url = new URL(strURL);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            HttpURLConnection conn;
+            if (proxy != null) {
+                conn = (HttpURLConnection) url.openConnection(proxy);
+            } else {
+                conn = (HttpURLConnection) url.openConnection();
+            }
             conn.setDoOutput(true);
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json");
@@ -90,7 +106,12 @@ public class HttpUtility {
      */
     public String downloadFile(String fileURL, String saveDir) throws Exception {
         URL url = new URL(fileURL);
-        HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
+        HttpURLConnection httpConn;
+        if (proxy != null) {
+            httpConn = (HttpURLConnection) url.openConnection(proxy);
+        } else {
+            httpConn = (HttpURLConnection) url.openConnection();
+        }
         int responseCode = httpConn.getResponseCode();
 
         String fileName = "";

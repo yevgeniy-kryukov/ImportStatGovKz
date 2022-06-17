@@ -35,10 +35,13 @@ public class App
                     return;
                 }
 
-                //Proxy proxy = null; //new Proxy(Proxy.Type.HTTP, new InetSocketAddress("10.1.20.15", 8888));
+                Proxy proxy = null;
+                if (props.getProperty("useProxy").equals("true")) {
+                    proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(props.getProperty("proxyHost"), Integer.parseInt(props.getProperty("proxyPort"))));
+                }
 
                 // Получение списка срезов
-                String jsonString = new HttpUtility().get("https://stat.gov.kz/api/rcut/ru");
+                String jsonString = new HttpUtility(proxy).get("https://stat.gov.kz/api/rcut/ru");
                 if (jsonString == null) {
                     throw new Exception("Ошибка! Не удалось получить список срезов");
                 }
@@ -84,7 +87,7 @@ public class App
                         pid = log.startProcess(cutId, typeLegalUnitId);
                         try {
                             // скачиваем файл
-                            String fileName = new FileDownloader().getFile(cutId, typeLegalUnitId, listSitCodes, props.getProperty("downloadDir"));
+                            String fileName = new FileDownloader(proxy).getFile(cutId, typeLegalUnitId, listSitCodes, props.getProperty("downloadDir"));
                             String unzipPath = props.getProperty("downloadDir") + "\\" + fileName.split("\\.")[0];
                             // разархивируем файл
                             new UnzipUtility().unzip(props.getProperty("downloadDir") + "\\" + fileName, unzipPath);
