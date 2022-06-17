@@ -22,6 +22,8 @@ public class App
 {
     public static void main(String[] args) {
         try {
+            org.apache.log4j.PropertyConfigurator.configure("log4j.properties");
+
             // считываем настройки
             final Properties props = new Properties();
             try(InputStream in = Files.newInputStream(Paths.get("app.properties"))) {
