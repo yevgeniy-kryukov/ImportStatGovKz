@@ -96,7 +96,7 @@ public class App
                             // загружаем данные с файла(ов)
                             files = new File(unzipPath).list(filter);
                             for (String file : files) {
-                                new ExcelDataLoader(conn).loadDataFile(unzipPath + "\\" + file, cutId, typeLegalUnitId);
+                                new ExcelDataLoader(conn, cutId, typeLegalUnitId).loadDataFile(unzipPath + "\\" + file);
                             }
                             log.finishProcess(pid, null);
                         } catch (Exception e) {
