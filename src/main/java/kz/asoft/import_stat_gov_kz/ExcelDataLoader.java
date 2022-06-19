@@ -22,7 +22,7 @@ public class ExcelDataLoader {
         this.typeLegalUnitId = typeLegalUnitId;
     }
 
-    private long getGlPersonId(String iin_bin) throws SQLException {
+    private Long getGlPersonId(String iin_bin) throws SQLException {
         final String sqlText = "SELECT etl.etl_util_pkg.get_gl_person_id(?) as gl_person_id";
         try(final PreparedStatement preparedStatement = conn.prepareStatement(sqlText)) {
             preparedStatement.setString(1, iin_bin);
@@ -32,7 +32,7 @@ public class ExcelDataLoader {
                 }
             }
         }
-        return 0;
+        return null;
     }
 
     private long createGlPersonId(String iin_bin, String personName) throws SQLException {
@@ -66,6 +66,7 @@ public class ExcelDataLoader {
 
     private void saveData(String[] aRow) throws SQLException {
         final String sqlText = "INSERT INTO stat_gov_kz.g_legal (" +
+                                "id," +
                                 "bin_iin," +
                                 "full_name_kz," +
                                 "full_name," +
@@ -86,10 +87,11 @@ public class ExcelDataLoader {
                                 "type_legal_unit_id," +
                                 "gl_person_id" +
                                 ") " +
-                                "VALUES (?, ?, ?, to_date(?, 'dd.mm.yyyy'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
+                                "VALUES (nextval('stat_gov_kz.g_legal_seq'), ?, ?, ?, to_date(?, 'dd.mm.yyyy'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
                                 "ON CONFLICT ON CONSTRAINT g_legal_iin_uq DO UPDATE SET " +
                                 "full_name_kz = EXCLUDED.full_name_kz," +
                                 "full_name = EXCLUDED.full_name," +
+                                "date_reg = EXCLUDED.date_reg," +
                                 "oked_main_code = EXCLUDED.oked_main_code," +
                                 "oked_main_activity_name_kz = EXCLUDED.oked_main_activity_name_kz," +
                                 "oked_main_activity_name = EXCLUDED.oked_main_activity_name," +
@@ -105,35 +107,39 @@ public class ExcelDataLoader {
                                 "cut_id = EXCLUDED.cut_id," +
                                 "type_legal_unit_id = EXCLUDED.type_legal_unit_id";
         try(final PreparedStatement preparedStatement = conn.prepareStatement(sqlText)) {
-            String iinbin = aRow[0];
-            String personName = aRow[15];
-
-            preparedStatement.setString(1, iinbin);
-            preparedStatement.setString(2, aRow[1]);
-            preparedStatement.setString(3, aRow[2]);
-            preparedStatement.setString(4, aRow[3]);
-            preparedStatement.setString(5, aRow[4]);
-            preparedStatement.setString(6, aRow[5]);
-            preparedStatement.setString(7, aRow[6]);
-            preparedStatement.setString(8, aRow[7]);
-            preparedStatement.setString(9, aRow[8]);
-            preparedStatement.setString(10, aRow[9]);
-            preparedStatement.setString(11, aRow[10]);
-            preparedStatement.setString(12, aRow[11]);
-            preparedStatement.setString(13, aRow[12]);
-            preparedStatement.setString(14, aRow[13]);
-            preparedStatement.setString(15, aRow[14]);
-            preparedStatement.setString(16, personName);
-            preparedStatement.setInt(17, cutId);
-            preparedStatement.setInt(18, typeLegalUnitId);
-
-            if (Integer.parseInt(iinbin.substring(4,5)) < 4) {  // ИИН, только для физ.лиц
-                long glPersonId = getGlPersonId(iinbin);
-                if (glPersonId == 0) glPersonId = createGlPersonId(iinbin, personName);
-                preparedStatement.setLong(19, glPersonId);
-            } else {
-                preparedStatement.setNull(19, Types.NUMERIC);
+            String iinBin = aRow[0];
+            if (iinBin.length()!=12) {
+                return;
             }
+
+            String personName = aRow[15].isEmpty() ? "-" : aRow[15];
+
+            Long glPersonId = null;
+            if (Integer.parseInt(iinBin.substring(4,5)) < 4) {  // ИИН, только для физ.лиц
+                glPersonId = getGlPersonId(iinBin);
+                if (glPersonId == null) glPersonId = createGlPersonId(iinBin, personName);
+                preparedStatement.setLong(19, glPersonId);
+            }
+
+            preparedStatement.setObject(1, iinBin, Types.VARCHAR);
+            preparedStatement.setObject(2, aRow[1].isEmpty() ? null : aRow[1], Types.VARCHAR);
+            preparedStatement.setObject(3, aRow[2].isEmpty() ? null : aRow[2], Types.VARCHAR);
+            preparedStatement.setObject(4, aRow[3].isEmpty() ? null : aRow[3], Types.VARCHAR);
+            preparedStatement.setObject(5, aRow[4].isEmpty() ? null : aRow[4], Types.VARCHAR);
+            preparedStatement.setObject(6, aRow[5].isEmpty() ? null : aRow[5], Types.VARCHAR);
+            preparedStatement.setObject(7, aRow[6].isEmpty() ? null : aRow[6], Types.VARCHAR);
+            preparedStatement.setObject(8, aRow[7].isEmpty() ? null : aRow[7], Types.VARCHAR);
+            preparedStatement.setObject(9, aRow[8].isEmpty() ? null : aRow[8], Types.VARCHAR);
+            preparedStatement.setObject(10, aRow[9].isEmpty() ? null : aRow[9], Types.VARCHAR);
+            preparedStatement.setObject(11, aRow[10].isEmpty() ? null : aRow[10], Types.VARCHAR);
+            preparedStatement.setObject(12, aRow[11].isEmpty() ? null : aRow[11], Types.VARCHAR);
+            preparedStatement.setObject(13, aRow[12].isEmpty() ? null : aRow[12], Types.VARCHAR);
+            preparedStatement.setObject(14, aRow[13].isEmpty() ? null : aRow[13], Types.VARCHAR);
+            preparedStatement.setObject(15, aRow[14].isEmpty() ? null : aRow[14], Types.VARCHAR);
+            preparedStatement.setObject(16, personName, Types.VARCHAR);
+            preparedStatement.setObject(17, cutId, Types.INTEGER);
+            preparedStatement.setObject(18, typeLegalUnitId, Types.INTEGER);
+            preparedStatement.setObject(19, glPersonId, Types.NUMERIC);
 
             final int rowsCount = preparedStatement.executeUpdate();
         }
@@ -150,7 +156,7 @@ public class ExcelDataLoader {
 
         for (Sheet sheet : workbook) {
             System.out.println(sheet.getSheetName());
-            rowloop:
+            rowLoop:
             for (Row r : sheet) {
                 if (r.getRowNum() == 100) {
                     break;
@@ -158,12 +164,12 @@ public class ExcelDataLoader {
                 for (Cell c : r) {
                     if (c.getColumnIndex() == 0) { // в первой колонке должен быть ИИН (БИН)
                         try {
-                            long cellValue = Long.parseLong(c.getStringCellValue());
+                            long cellValue = Long.parseLong(c.getStringCellValue().trim());
                         } catch (NumberFormatException nfe) {
-                            continue rowloop;
+                            continue rowLoop;
                         }
                     }
-                    aRow[c.getColumnIndex()] = c.getStringCellValue();
+                    aRow[c.getColumnIndex()] = c.getStringCellValue().trim();
                 }
                 saveData(aRow);
             }
