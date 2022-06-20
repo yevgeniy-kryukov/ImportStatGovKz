@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.sql.*;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -126,7 +125,6 @@ public class ExcelDataLoader {
             if (Integer.parseInt(iinBin.substring(4,5)) < 4) {  // ИИН, только для физ.лиц
                 leaderGlPersonId = getGlPersonId(iinBin);
                 if (leaderGlPersonId == null) leaderGlPersonId = createGlPersonId(iinBin, leaderName);
-                preparedStatement.setLong(19, leaderGlPersonId);
             }
 
             Date dateReg = null;
