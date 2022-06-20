@@ -10,6 +10,10 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.sql.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.Date;
 
 public class ExcelDataLoader {
     private final Connection conn;
@@ -64,7 +68,7 @@ public class ExcelDataLoader {
         return 0;
     }
 
-    private void saveData(String[] aRow) throws SQLException {
+    private void saveData(String[] aRow) throws Exception {
         final String sqlText = "INSERT INTO stat_gov_kz.g_legal (" +
                                 "id," +
                                 "bin_iin," +
@@ -85,9 +89,11 @@ public class ExcelDataLoader {
                                 "leader_name," +
                                 "cut_id," +
                                 "type_legal_unit_id," +
-                                "gl_person_id" +
+                                "leader_gl_person_id," +
+                                "actualization_dt," +
+                                "is_actual" +
                                 ") " +
-                                "VALUES (nextval('stat_gov_kz.g_legal_seq'), ?, ?, ?, to_date(?, 'dd.mm.yyyy'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
+                                "VALUES (nextval('stat_gov_kz.g_legal_seq'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
                                 "ON CONFLICT ON CONSTRAINT g_legal_iin_uq DO UPDATE SET " +
                                 "full_name_kz = EXCLUDED.full_name_kz," +
                                 "full_name = EXCLUDED.full_name," +
@@ -105,26 +111,33 @@ public class ExcelDataLoader {
                                 "legal_address = EXCLUDED.legal_address," +
                                 "leader_name = EXCLUDED.leader_name," +
                                 "cut_id = EXCLUDED.cut_id," +
-                                "type_legal_unit_id = EXCLUDED.type_legal_unit_id";
+                                "type_legal_unit_id = EXCLUDED.type_legal_unit_id," +
+                                "actualization_dt = EXCLUDED.actualization_dt," +
+                                "is_actual = EXCLUDED.is_actual";
         try(final PreparedStatement preparedStatement = conn.prepareStatement(sqlText)) {
             String iinBin = aRow[0];
             if (iinBin.length()!=12) {
                 return;
             }
 
-            String personName = aRow[15].isEmpty() ? "-" : aRow[15];
+            String leaderName = aRow[15].isEmpty() ? "-" : aRow[15];
 
-            Long glPersonId = null;
+            Long leaderGlPersonId = null;
             if (Integer.parseInt(iinBin.substring(4,5)) < 4) {  // ИИН, только для физ.лиц
-                glPersonId = getGlPersonId(iinBin);
-                if (glPersonId == null) glPersonId = createGlPersonId(iinBin, personName);
-                preparedStatement.setLong(19, glPersonId);
+                leaderGlPersonId = getGlPersonId(iinBin);
+                if (leaderGlPersonId == null) leaderGlPersonId = createGlPersonId(iinBin, leaderName);
+                preparedStatement.setLong(19, leaderGlPersonId);
+            }
+
+            Date dateReg = null;
+            if (!aRow[3].isEmpty()) {
+                dateReg = new SimpleDateFormat("dd.MM.yyyy").parse(aRow[3]);
             }
 
             preparedStatement.setObject(1, iinBin, Types.VARCHAR);
             preparedStatement.setObject(2, aRow[1].isEmpty() ? null : aRow[1], Types.VARCHAR);
             preparedStatement.setObject(3, aRow[2].isEmpty() ? null : aRow[2], Types.VARCHAR);
-            preparedStatement.setObject(4, aRow[3].isEmpty() ? null : aRow[3], Types.VARCHAR);
+            preparedStatement.setObject(4, dateReg, Types.TIMESTAMP);
             preparedStatement.setObject(5, aRow[4].isEmpty() ? null : aRow[4], Types.VARCHAR);
             preparedStatement.setObject(6, aRow[5].isEmpty() ? null : aRow[5], Types.VARCHAR);
             preparedStatement.setObject(7, aRow[6].isEmpty() ? null : aRow[6], Types.VARCHAR);
@@ -136,10 +149,12 @@ public class ExcelDataLoader {
             preparedStatement.setObject(13, aRow[12].isEmpty() ? null : aRow[12], Types.VARCHAR);
             preparedStatement.setObject(14, aRow[13].isEmpty() ? null : aRow[13], Types.VARCHAR);
             preparedStatement.setObject(15, aRow[14].isEmpty() ? null : aRow[14], Types.VARCHAR);
-            preparedStatement.setObject(16, personName, Types.VARCHAR);
+            preparedStatement.setObject(16, leaderName, Types.VARCHAR);
             preparedStatement.setObject(17, cutId, Types.INTEGER);
             preparedStatement.setObject(18, typeLegalUnitId, Types.INTEGER);
-            preparedStatement.setObject(19, glPersonId, Types.NUMERIC);
+            preparedStatement.setObject(19, leaderGlPersonId, Types.NUMERIC);
+            preparedStatement.setObject(20, LocalDateTime.now(), Types.TIMESTAMP);
+            preparedStatement.setObject(21, true, Types.BOOLEAN);
 
             final int rowsCount = preparedStatement.executeUpdate();
         }
