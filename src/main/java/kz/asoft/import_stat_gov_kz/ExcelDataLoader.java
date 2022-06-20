@@ -15,19 +15,19 @@ import java.time.LocalDateTime;
 import java.util.Date;
 
 public class ExcelDataLoader {
-    private final Connection conn;
+    private final Connection connDB;
     private final int cutId;
     private final int typeLegalUnitId;
 
-    ExcelDataLoader(Connection conn, int cutId, int typeLegalUnitId) {
-        this.conn = conn;
+    ExcelDataLoader(Connection connDB, int cutId, int typeLegalUnitId) {
+        this.connDB = connDB;
         this.cutId = cutId;
         this.typeLegalUnitId = typeLegalUnitId;
     }
 
     private Long getGlPersonId(String iin_bin) throws SQLException {
         final String sqlText = "SELECT etl.etl_util_pkg.get_gl_person_id(?) as gl_person_id";
-        try(final PreparedStatement preparedStatement = conn.prepareStatement(sqlText)) {
+        try(final PreparedStatement preparedStatement = connDB.prepareStatement(sqlText)) {
             preparedStatement.setString(1, iin_bin);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
@@ -42,7 +42,7 @@ public class ExcelDataLoader {
         final int hDBSourceId = 69;
         final int hCountryId = 105;
         final String sqlText = "SELECT etl.etl_util_pkg.create_person_gl(?,?,?,?,?,?,?,?) as gl_person_id";
-        try(final PreparedStatement preparedStatement = conn.prepareStatement(sqlText)) {
+        try(final PreparedStatement preparedStatement = connDB.prepareStatement(sqlText)) {
             String[] aName = personName.split(" ");
             String surname = "";
             String name = "";
@@ -113,7 +113,7 @@ public class ExcelDataLoader {
                                 "type_legal_unit_id = EXCLUDED.type_legal_unit_id," +
                                 "actualization_dt = EXCLUDED.actualization_dt," +
                                 "is_actual = EXCLUDED.is_actual";
-        try(final PreparedStatement preparedStatement = conn.prepareStatement(sqlText)) {
+        try(final PreparedStatement preparedStatement = connDB.prepareStatement(sqlText)) {
             String iinBin = aRow[0];
             if (iinBin.length()!=12) {
                 return;

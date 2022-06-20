@@ -5,7 +5,7 @@ import java.net.*;
 import java.nio.charset.StandardCharsets;
 
 public class HttpUtility {
-    private Proxy proxy;
+    private final Proxy proxy;
 
     HttpUtility(Proxy proxy) {
         this.proxy = proxy;

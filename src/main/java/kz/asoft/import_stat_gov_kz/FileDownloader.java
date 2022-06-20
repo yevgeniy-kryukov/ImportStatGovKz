@@ -3,8 +3,8 @@ package kz.asoft.import_stat_gov_kz;
 import java.net.*;
 import org.json.*;
 
-public class FileDownloader {
-    private Proxy proxy;
+class FileDownloader {
+    private final Proxy proxy;
 
     FileDownloader(Proxy proxy) {
         this.proxy = proxy;

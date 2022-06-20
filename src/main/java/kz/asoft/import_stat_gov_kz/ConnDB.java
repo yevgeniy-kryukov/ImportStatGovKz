@@ -8,18 +8,23 @@ import java.io.InputStream;
 import java.util.Properties;
 
 class ConnDB {
+    static private Connection connDB = null;
+
     private ConnDB() {}
 
     static Connection getConnection() throws Exception {
-        Class.forName("org.postgresql.Driver").getDeclaredConstructor().newInstance();
-        final Properties props = new Properties();
-        try(InputStream in = Files.newInputStream(Paths.get("database.properties"))) {
-            props.load(in);
-        }
-        final String url = props.getProperty("url");
-        final String username = props.getProperty("username");
-        final String password = props.getProperty("password");
+        if (connDB == null) {
+            Class.forName("org.postgresql.Driver").getDeclaredConstructor().newInstance();
+            final Properties props = new Properties();
+            try (InputStream in = Files.newInputStream(Paths.get("database.properties"))) {
+                props.load(in);
+            }
+            final String url = props.getProperty("url");
+            final String username = props.getProperty("username");
+            final String password = props.getProperty("password");
 
-        return DriverManager.getConnection(url, username, password);
+            connDB = DriverManager.getConnection(url, username, password);
+        }
+        return connDB;
     }
 }

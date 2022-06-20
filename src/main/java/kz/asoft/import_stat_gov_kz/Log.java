@@ -4,7 +4,7 @@ import java.sql.*;
 import java.text.SimpleDateFormat;
 
 public class Log {
-    private final Connection conn;
+    private final Connection connDB;
 
     private Integer id;
 
@@ -12,8 +12,8 @@ public class Log {
 
     private boolean isStarted = false;
 
-    Log(Connection conn, Integer cutId)  {
-        this.conn = conn;
+    Log(Connection connDB, Integer cutId)  {
+        this.connDB = connDB;
         this.cutId = cutId;
     }
 
@@ -24,7 +24,7 @@ public class Log {
 
         final String sqlText = "INSERT INTO stat_gov_kz.j_loader (id, started, cut_id) " +
                                 "VALUES (nextval('stat_gov_kz.j_cut_loader_seq'), localtimestamp, ?) returning id";
-        try(final PreparedStatement preparedStatement = conn.prepareStatement(sqlText)) {
+        try(final PreparedStatement preparedStatement = connDB.prepareStatement(sqlText)) {
             preparedStatement.setInt(1, cutId);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
@@ -42,7 +42,7 @@ public class Log {
             return;
         }
         final String sqlText = "UPDATE stat_gov_kz.j_loader SET finished = localtimestamp, error_text = ? WHERE id = ?";
-        try(final PreparedStatement preparedStatement = conn.prepareStatement(sqlText)) {
+        try(final PreparedStatement preparedStatement = connDB.prepareStatement(sqlText)) {
             preparedStatement.setString(1, errorText);
             preparedStatement.setInt(2, id);
             final int rowsCount = preparedStatement.executeUpdate();
@@ -51,7 +51,7 @@ public class Log {
 
     private boolean isExistsUnfinishedProcess() throws SQLException {
         final String sqlText = "SELECT id FROM stat_gov_kz.j_loader WHERE finished IS NULL LIMIT 1";
-        try(Statement statement = this.conn.createStatement();
+        try(Statement statement = this.connDB.createStatement();
             ResultSet resultSet = statement.executeQuery(sqlText);)
         {
             if (resultSet.next()) {
