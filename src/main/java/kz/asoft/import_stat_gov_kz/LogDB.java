@@ -1,9 +1,8 @@
 package kz.asoft.import_stat_gov_kz;
 
 import java.sql.*;
-import java.text.SimpleDateFormat;
 
-public class Log {
+public class LogDB {
     private final Connection connDB;
 
     private Integer id;
@@ -12,7 +11,7 @@ public class Log {
 
     private boolean isStarted = false;
 
-    Log(Connection connDB, Integer cutId)  {
+    LogDB(Connection connDB, Integer cutId)  {
         this.connDB = connDB;
         this.cutId = cutId;
     }
