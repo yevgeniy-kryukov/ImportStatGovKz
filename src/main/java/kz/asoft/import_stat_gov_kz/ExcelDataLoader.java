@@ -32,9 +32,9 @@ public class ExcelDataLoader {
             System.out.println(sheet.getSheetName());
             rowLoop:
             for (Row r : sheet) {
-                if (r.getRowNum() == 100) {
-                    break;
-                }
+//                if (r.getRowNum() == 100) {
+//                    break;
+//                }
                 for (Cell c : r) {
                     if (c.getColumnIndex() == 0) { // в первой колонке должен быть ИИН (БИН)
                         try {
