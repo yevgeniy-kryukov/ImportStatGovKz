@@ -16,22 +16,22 @@ class Legal {
     }
 
     private Long getGlPersonId(String iin_bin) throws SQLException {
-        final String sqlText = "SELECT etl.etl_util_pkg.get_gl_person_id(?) as gl_person_id";
+        final String sqlText = "SELECT etl_util_pkg.get_gl_person_id(?) as gl_person_id";
         try(final PreparedStatement preparedStatement = connDB.prepareStatement(sqlText)) {
             preparedStatement.setString(1, iin_bin);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    return resultSet.getLong("gl_person_id");
+                    return resultSet.getObject("gl_person_id") != null ? resultSet.getLong("gl_person_id") : null;
                 }
             }
         }
         return null;
     }
 
-    private long createGlPersonId(String iin_bin, String personName) throws SQLException {
+    private Long createGlPersonId(String iin_bin, String personName) throws SQLException {
         final int hDBSourceId = 69;
         final int hCountryId = 105;
-        final String sqlText = "SELECT etl.etl_util_pkg.create_person_gl(?,?,?,?,?,?,?,?) as gl_person_id";
+        final String sqlText = "SELECT etl_util_pkg.create_person_gl(?,?,?,?,?,?,?,?) as gl_person_id";
         try(final PreparedStatement preparedStatement = connDB.prepareStatement(sqlText)) {
             String[] aName = personName.split(" ");
             String surname = "";
@@ -50,11 +50,11 @@ class Legal {
             preparedStatement.setInt(8, hDBSourceId);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    return resultSet.getLong("gl_person_id");
+                    return resultSet.getObject("gl_person_id") != null ? resultSet.getLong("gl_person_id") : null;
                 }
             }
         }
-        return 0;
+        return null;
     }
 
     void saveData(int typeLegalUnitId, String[] aRow) throws Exception {
@@ -83,7 +83,7 @@ class Legal {
                 "is_actual" +
                 ") " +
                 "VALUES (nextval('stat_gov_kz.g_legal_seq'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
-                "ON CONFLICT ON CONSTRAINT g_legal_iin_uq DO UPDATE SET " +
+                "ON CONFLICT ON CONSTRAINT g_legal_bin_iin_uk DO UPDATE SET " +
                 "full_name_kz = EXCLUDED.full_name_kz," +
                 "full_name = EXCLUDED.full_name," +
                 "date_reg = EXCLUDED.date_reg," +

@@ -22,7 +22,7 @@ public class LogDB {
         }
 
         final String sqlText = "INSERT INTO stat_gov_kz.j_loader (id, started, cut_id) " +
-                                "VALUES (nextval('stat_gov_kz.j_cut_loader_seq'), localtimestamp, ?) returning id";
+                                "VALUES (nextval('stat_gov_kz.j_loader_seq'), localtimestamp, ?) returning id";
         try(final PreparedStatement preparedStatement = connDB.prepareStatement(sqlText)) {
             preparedStatement.setInt(1, cutId);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
