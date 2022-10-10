@@ -35,17 +35,17 @@ public class App
                                         new InetSocketAddress(props.getProperty("proxyHost"),
                                         Integer.parseInt(props.getProperty("proxyPort"))));
                 }
-                // Создаём срез
-                Cut cut = new Cut(connDB, proxy);
+                // Получаем актульный идентификатор среза данных
+                Integer cutId = new Cut(connDB, proxy).getCutId();
                 // Стартуем журналирование
-                logDB = new LogDB(connDB, cut.getCutId());
+                logDB = new LogDB(connDB, cutId);
                 if (!logDB.start()) {
                     return;
                 }
                 // Получаем строку ситуационных кодов разделенных ","
                 String sitCodes = new SitCode(connDB).getAllCodes();
                 // Загрузка и сохранение регистрационных данных по правовым единицам
-                Legal legal = new Legal(connDB, cut.getCutId());
+                Legal legal = new Legal(connDB, cutId);
                 int typeLegalUnitId;
                 String[] files;
                 FilenameFilter filter = (f, name) -> name.endsWith(".xlsx");
@@ -55,7 +55,7 @@ public class App
                     while (resultSet.next()) {
                         typeLegalUnitId = resultSet.getInt("id");
                         // скачиваем файл
-                        String fileName = new FileDownloader(proxy).getFile(cut.getCutId(),
+                        String fileName = new FileDownloader(proxy).getFile(cutId,
                                                                             typeLegalUnitId,
                                                                             sitCodes,
                                                                             props.getProperty("downloadDir"));

@@ -17,7 +17,15 @@ public class LogDB {
     }
 
     boolean start() throws SQLException {
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+
         if (isExistsUnfinishedProcess()) {
+            System.out.println(timestamp + " Имеются не завершенные процессы загрузки в журнале. Загрузка отменена!");
+            return false;
+        }
+
+        if (isLoadedCut(this.cutId)) {
+            System.out.println(timestamp + " Актуальный срез уже загружен. Загрузка отменена!");
             return false;
         }
 
@@ -25,7 +33,7 @@ public class LogDB {
                                 "VALUES (nextval('stat_gov_kz.j_loader_seq'), localtimestamp, ?) returning id";
         try(final PreparedStatement preparedStatement = connDB.prepareStatement(sqlText)) {
             preparedStatement.setInt(1, cutId);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
                     this.id = resultSet.getInt("id");
                     this.isStarted = true;
@@ -36,10 +44,11 @@ public class LogDB {
         return true;
     }
 
-    void finish(String errorText) throws SQLException {
+    void finish(final String errorText) throws SQLException {
         if (!this.isStarted) {
             return;
         }
+
         final String sqlText = "UPDATE stat_gov_kz.j_loader SET finished = localtimestamp, error_text = ? WHERE id = ?";
         try(final PreparedStatement preparedStatement = connDB.prepareStatement(sqlText)) {
             preparedStatement.setString(1, errorText);
@@ -50,11 +59,28 @@ public class LogDB {
 
     private boolean isExistsUnfinishedProcess() throws SQLException {
         final String sqlText = "SELECT id FROM stat_gov_kz.j_loader WHERE finished IS NULL LIMIT 1";
-        try(Statement statement = this.connDB.createStatement();
-            ResultSet resultSet = statement.executeQuery(sqlText);)
+        try(final Statement statement = this.connDB.createStatement();
+            final ResultSet resultSet = statement.executeQuery(sqlText))
         {
             if (resultSet.next()) {
                 return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isLoadedCut(final int cutId) throws SQLException {
+        final String sqlText = "SELECT id " +
+                                "FROM stat_gov_kz.j_loader " +
+                                "WHERE finished IS NOT NULL and error_text IS NULL and cut_id = ?" +
+                                "LIMIT 1";
+        try(final PreparedStatement preparedStatement = this.connDB.prepareStatement(sqlText))
+        {
+            preparedStatement.setInt(1, cutId);
+            try(final ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return true;
+                }
             }
         }
         return false;
