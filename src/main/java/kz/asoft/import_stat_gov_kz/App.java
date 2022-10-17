@@ -13,7 +13,7 @@ import java.nio.file.Paths;
 import java.io.InputStream;
 
 /**
- * Hello world!
+ * ImportStatGovKz Application
  *
  */
 public class App 
@@ -36,7 +36,7 @@ public class App
                                         Integer.parseInt(props.getProperty("proxyPort"))));
                 }
                 // Получаем актульный идентификатор среза данных
-                Integer cutId = new Cut(connDB, proxy).getCutId();
+                Integer cutId = Cut.getCutId(connDB, proxy);
                 // Стартуем журналирование
                 logDB = new LogDB(connDB, cutId);
                 if (!logDB.start()) {

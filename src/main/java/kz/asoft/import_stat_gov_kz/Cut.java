@@ -6,19 +6,9 @@ import java.net.Proxy;
 import java.sql.*;
 
 class Cut {
-    private final Proxy proxy;
-    private final Connection connDB;
-    private Integer cutId = -1;
 
-    Cut(Connection connDB, Proxy proxy)  {
-        this.connDB = connDB;
-        this.proxy = proxy;
-    }
-
-    Integer getCutId() throws Exception {
-        if (this.cutId != -1) {
-            return this.cutId;
-        }
+    static Integer getCutId(Connection connDB, Proxy proxy) throws Exception {
+        int cutId = -1;
 
         // Получение списка срезов
         String jsonString = new HttpUtility(proxy).get("https://stat.gov.kz/api/rcut/ru");
@@ -31,23 +21,23 @@ class Cut {
         JSONArray ja = new JSONArray(jsonString);
         for (int i = 0; i < ja.length(); i++) {
             int id = ja.getJSONObject(i).getInt("id");
-            if (id > this.cutId) {
-                this.cutId = id;
+            if (id > cutId) {
+                cutId = id;
                 cutName = ja.getJSONObject(i).getString("name");
             }
         }
 
-        if (this.cutId == -1) {
+        if (cutId == -1) {
             throw new Exception("Ошибка! Не удалось определить идентификатор актуального среза");
         }
 
         // Сохраняем срез
-        if (!isExistsCut(this.cutId)) addCut(this.cutId, cutName);
+        if (!isExistsCut(connDB, cutId)) addCut(connDB, cutId, cutName);
 
-        return this.cutId;
+        return cutId;
     }
 
-    private boolean isExistsCut(int id) throws SQLException {
+    private static boolean isExistsCut(Connection connDB, int id) throws SQLException {
         final String sqlText = "SELECT 1 FROM stat_gov_kz.d_cut WHERE id = ?";
         try(final PreparedStatement preparedStatement = connDB.prepareStatement(sqlText)) {
             preparedStatement.setInt(1, id);
@@ -60,7 +50,7 @@ class Cut {
         return false;
     }
 
-    private void addCut(int id, String name) throws SQLException {
+    private static void addCut(Connection connDB, int id, String name) throws SQLException {
         final String sqlText = "INSERT INTO stat_gov_kz.d_cut (id, name) VALUES (?, ?)";
         try(final PreparedStatement preparedStatement = connDB.prepareStatement(sqlText)) {
             preparedStatement.setInt(1, id);
