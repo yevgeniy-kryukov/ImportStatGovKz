@@ -2,7 +2,7 @@ package kz.asoft.import_stat_gov_kz;
 
 import java.sql.*;
 
-public class LogDB {
+class LogDB {
     private final Connection connDB;
 
     private Integer id;

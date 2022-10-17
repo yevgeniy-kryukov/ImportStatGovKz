@@ -25,7 +25,7 @@ create table if not exists stat_gov_kz.g_legal (
 	constraint g_legal_bin_iin_uk unique (bin_iin),
 	constraint g_legal_type_legal_unit_id_fk foreign key (type_legal_unit_id) references stat_gov_kz.d_type_legal_unit (id),
 	constraint g_legal_cut_id_fk foreign key (cut_id) references stat_gov_kz.d_cut (id)
-);
+) WITH (autovacuum_enabled='false', toast.autovacuum_enabled='false');
 comment on table stat_gov_kz.g_legal is 'Правовая единица (юр.лицо)';
 comment on column stat_gov_kz.g_legal.id is 'Идентификатор';
 comment on column stat_gov_kz.g_legal.bin_iin is 'БИН (ИИН)';

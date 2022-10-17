@@ -10,14 +10,17 @@ class Legal {
 
     private final int cutId;
 
-    Legal(Connection connDB, int cutId)  {
-        this.connDB = connDB;
+    private final int typeLegalUnitId;
+
+    Legal(int cutId, int typeLegalUnitId) throws Exception {
+        this.connDB = ConnDB.getConnection();
         this.cutId = cutId;
+        this.typeLegalUnitId = typeLegalUnitId;
     }
 
     private Long getGlPersonId(String iin_bin) throws SQLException {
         final String sqlText = "SELECT etl_util_pkg.get_gl_person_id(?) as gl_person_id";
-        try(final PreparedStatement preparedStatement = connDB.prepareStatement(sqlText)) {
+        try(final PreparedStatement preparedStatement = this.connDB.prepareStatement(sqlText)) {
             preparedStatement.setString(1, iin_bin);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
@@ -32,7 +35,7 @@ class Legal {
         final int hDBSourceId = 69;
         final int hCountryId = 105;
         final String sqlText = "SELECT etl_util_pkg.create_person_gl(?,?,?,?,?,?,?,?) as gl_person_id";
-        try(final PreparedStatement preparedStatement = connDB.prepareStatement(sqlText)) {
+        try(final PreparedStatement preparedStatement = this.connDB.prepareStatement(sqlText)) {
             String[] aName = personName.split(" ");
             String surname = "";
             String name = "";
@@ -57,7 +60,7 @@ class Legal {
         return null;
     }
 
-    void saveData(int typeLegalUnitId, String[] aRow) throws Exception {
+    void saveRow(String[] aRow) throws Exception {
         final String sqlText = "INSERT INTO stat_gov_kz.g_legal (" +
                 "id," +
                 "bin_iin," +
@@ -103,7 +106,7 @@ class Legal {
                 "type_legal_unit_id = EXCLUDED.type_legal_unit_id," +
                 "actualization_dt = EXCLUDED.actualization_dt," +
                 "is_actual = EXCLUDED.is_actual";
-        try(final PreparedStatement preparedStatement = connDB.prepareStatement(sqlText)) {
+        try(final PreparedStatement preparedStatement = this.connDB.prepareStatement(sqlText)) {
             String iinBin = aRow[0];
             if (iinBin.length()!=12) {
                 return;
@@ -138,8 +141,8 @@ class Legal {
             preparedStatement.setObject(14, aRow[13].isEmpty() ? null : aRow[13], Types.VARCHAR);
             preparedStatement.setObject(15, aRow[14].isEmpty() ? null : aRow[14], Types.VARCHAR);
             preparedStatement.setObject(16, leaderName, Types.VARCHAR);
-            preparedStatement.setObject(17, cutId, Types.INTEGER);
-            preparedStatement.setObject(18, typeLegalUnitId, Types.INTEGER);
+            preparedStatement.setObject(17, this.cutId, Types.INTEGER);
+            preparedStatement.setObject(18, this.typeLegalUnitId, Types.INTEGER);
             preparedStatement.setObject(19, leaderGlPersonId, Types.NUMERIC);
             preparedStatement.setObject(20, LocalDateTime.now(), Types.TIMESTAMP);
             preparedStatement.setObject(21, true, Types.BOOLEAN);
@@ -148,7 +151,11 @@ class Legal {
         }
     }
 
-    void setNotActual() throws SQLException {
+    void close() throws SQLException {
+        this.connDB.close();
+    }
+
+    static void setNotActual(Connection connDB, int cutId) throws SQLException {
         final String sqlText = "UPDATE stat_gov_kz.g_legal SET is_actual = false WHERE cut_id < ?";
         try(final PreparedStatement preparedStatement = connDB.prepareStatement(sqlText)) {
             preparedStatement.setInt(1, cutId);

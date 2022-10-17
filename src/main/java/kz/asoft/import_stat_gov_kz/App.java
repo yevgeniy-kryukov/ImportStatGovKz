@@ -44,8 +44,6 @@ public class App
                 }
                 // Получаем строку ситуационных кодов разделенных ","
                 String sitCodes = new SitCode(connDB).getAllCodes();
-                // Загрузка и сохранение регистрационных данных по правовым единицам
-                Legal legal = new Legal(connDB, cutId);
                 int typeLegalUnitId;
                 String[] files;
                 FilenameFilter filter = (f, name) -> name.endsWith(".xlsx");
@@ -66,13 +64,14 @@ public class App
                         files = new File(unzipPath).list(filter);
                         if (files != null) {
                             for (String file : files) {
-                                new ExcelDataLoader(legal, typeLegalUnitId).loadDataFile(unzipPath + "\\" + file);
+                                new ExcelDataLoader(typeLegalUnitId, cutId).loadDataFile(unzipPath + "\\" + file,
+                                                                                            Integer.parseInt(props.getProperty("countLoadThreads")));
                             }
                         }
                     }
                 }
                 // Установка признака о неактульности
-                legal.setNotActual();
+                Legal.setNotActual(connDB, cutId);
                 // Завершаем журналирование
                 logDB.finish(null);
             } catch (Exception e) {
