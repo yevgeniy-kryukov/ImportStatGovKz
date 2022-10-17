@@ -6,13 +6,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 class SitCode {
-    private final Connection connDB;
 
-    SitCode(Connection connDB)  {
-        this.connDB = connDB;
-    }
-
-    String getAllCodes() throws SQLException {
+    static String getAllCodes(Connection connDB) throws SQLException {
         String codes = "";
         final String sqlText = "SELECT string_agg(id::character varying, ',') as lst " +
                                 "FROM stat_gov_kz.d_situational_code " +

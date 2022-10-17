@@ -43,7 +43,7 @@ public class App
                     return;
                 }
                 // Получаем строку ситуационных кодов разделенных ","
-                String sitCodes = new SitCode(connDB).getAllCodes();
+                String sitCodes = SitCode.getAllCodes(connDB);
                 int typeLegalUnitId;
                 String[] files;
                 FilenameFilter filter = (f, name) -> name.endsWith(".xlsx");
