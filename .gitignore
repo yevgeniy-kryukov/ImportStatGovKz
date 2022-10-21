@@ -31,6 +31,6 @@ build/
 ### Mac OS ###
 .DS_Store
 
-#*.properties
-#dependency-reduced-pom.xml
-#ImportStatGovKz.iml
+*.properties
+dependency-reduced-pom.xml
+ImportStatGovKz.iml
