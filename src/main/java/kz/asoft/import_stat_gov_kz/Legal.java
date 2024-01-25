@@ -20,7 +20,7 @@ class Legal {
 
     private Long getGlPersonId(String iin_bin) throws SQLException {
         final String sqlText = "SELECT etl_util_pkg.get_gl_person_id(?) as gl_person_id";
-        try(final PreparedStatement preparedStatement = this.connDB.prepareStatement(sqlText)) {
+        try (final PreparedStatement preparedStatement = this.connDB.prepareStatement(sqlText)) {
             preparedStatement.setString(1, iin_bin);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
@@ -35,7 +35,7 @@ class Legal {
         final int hDBSourceId = 69;
         final int hCountryId = 105;
         final String sqlText = "SELECT etl_util_pkg.create_person_gl(?,?,?,?,?,?,?,?) as gl_person_id";
-        try(final PreparedStatement preparedStatement = this.connDB.prepareStatement(sqlText)) {
+        try (final PreparedStatement preparedStatement = this.connDB.prepareStatement(sqlText)) {
             String[] aName = personName.split(" ");
             String surname = "";
             String name = "";
@@ -74,6 +74,12 @@ class Legal {
                 "krp_code," +
                 "krp_name_kz," +
                 "krp_name," +
+                "kse_code, " +
+                "kse_name_kz, " +
+                "kse_name, " +
+                "kfs_code, " +
+                "kfs_name_kz, " +
+                "kfs_name, " +
                 "kato_code," +
                 "locality_name_kz," +
                 "locality_name," +
@@ -85,7 +91,7 @@ class Legal {
                 "actualization_dt," +
                 "is_actual" +
                 ") " +
-                "VALUES (nextval('stat_gov_kz.g_legal_seq'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
+                "VALUES (nextval('stat_gov_kz.g_legal_seq'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
                 "ON CONFLICT ON CONSTRAINT g_legal_bin_iin_uk DO UPDATE SET " +
                 "full_name_kz = EXCLUDED.full_name_kz," +
                 "full_name = EXCLUDED.full_name," +
@@ -97,6 +103,12 @@ class Legal {
                 "krp_code = EXCLUDED.krp_code," +
                 "krp_name_kz = EXCLUDED.krp_name_kz," +
                 "krp_name = EXCLUDED.krp_name," +
+                "kse_code = EXCLUDED.kse_code," +
+                "kse_name_kz = EXCLUDED.kse_name_kz," +
+                "kse_name = EXCLUDED.kse_name," +
+                "kfs_code = EXCLUDED.kfs_code," +
+                "kfs_name_kz = EXCLUDED.kfs_name_kz," +
+                "kfs_name = EXCLUDED.kfs_name," +
                 "kato_code = EXCLUDED.kato_code," +
                 "locality_name_kz = EXCLUDED.locality_name_kz," +
                 "locality_name = EXCLUDED.locality_name," +
@@ -106,16 +118,16 @@ class Legal {
                 "type_legal_unit_id = EXCLUDED.type_legal_unit_id," +
                 "actualization_dt = EXCLUDED.actualization_dt," +
                 "is_actual = EXCLUDED.is_actual";
-        try(final PreparedStatement preparedStatement = this.connDB.prepareStatement(sqlText)) {
+        try (final PreparedStatement preparedStatement = this.connDB.prepareStatement(sqlText)) {
             String iinBin = aRow[0];
-            if (iinBin.length()!=12) {
+            if (iinBin.length() != 12) {
                 return;
             }
 
-            String leaderName = aRow[15].isEmpty() ? "-" : aRow[15];
+            String leaderName = aRow[21].isEmpty() ? "-" : aRow[21];
 
             Long leaderGlPersonId = null;
-            if (Integer.parseInt(iinBin.substring(4,5)) < 4) {  // ИИН, только для физ.лиц
+            if (Integer.parseInt(iinBin.substring(4, 5)) < 4) {  // ИИН, только для физ.лиц
                 leaderGlPersonId = getGlPersonId(iinBin);
                 if (leaderGlPersonId == null) leaderGlPersonId = createGlPersonId(iinBin, leaderName);
             }
@@ -136,16 +148,24 @@ class Legal {
             preparedStatement.setObject(9, aRow[8].isEmpty() ? null : aRow[8], Types.VARCHAR);
             preparedStatement.setObject(10, aRow[9].isEmpty() ? null : aRow[9], Types.VARCHAR);
             preparedStatement.setObject(11, aRow[10].isEmpty() ? null : aRow[10], Types.VARCHAR);
+
             preparedStatement.setObject(12, aRow[11].isEmpty() ? null : aRow[11], Types.VARCHAR);
             preparedStatement.setObject(13, aRow[12].isEmpty() ? null : aRow[12], Types.VARCHAR);
             preparedStatement.setObject(14, aRow[13].isEmpty() ? null : aRow[13], Types.VARCHAR);
             preparedStatement.setObject(15, aRow[14].isEmpty() ? null : aRow[14], Types.VARCHAR);
-            preparedStatement.setObject(16, leaderName, Types.VARCHAR);
-            preparedStatement.setObject(17, this.cutId, Types.INTEGER);
-            preparedStatement.setObject(18, this.typeLegalUnitId, Types.INTEGER);
-            preparedStatement.setObject(19, leaderGlPersonId, Types.NUMERIC);
-            preparedStatement.setObject(20, LocalDateTime.now(), Types.TIMESTAMP);
-            preparedStatement.setObject(21, true, Types.BOOLEAN);
+            preparedStatement.setObject(16, aRow[15].isEmpty() ? null : aRow[15], Types.VARCHAR);
+            preparedStatement.setObject(17, aRow[16].isEmpty() ? null : aRow[16], Types.VARCHAR);
+
+            preparedStatement.setObject(18, aRow[17].isEmpty() ? null : aRow[17], Types.VARCHAR);
+            preparedStatement.setObject(19, aRow[18].isEmpty() ? null : aRow[18], Types.VARCHAR);
+            preparedStatement.setObject(20, aRow[19].isEmpty() ? null : aRow[19], Types.VARCHAR);
+            preparedStatement.setObject(21, aRow[20].isEmpty() ? null : aRow[20], Types.VARCHAR);
+            preparedStatement.setObject(22, leaderName, Types.VARCHAR);
+            preparedStatement.setObject(23, this.cutId, Types.INTEGER);
+            preparedStatement.setObject(24, this.typeLegalUnitId, Types.INTEGER);
+            preparedStatement.setObject(25, leaderGlPersonId, Types.NUMERIC);
+            preparedStatement.setObject(26, LocalDateTime.now(), Types.TIMESTAMP);
+            preparedStatement.setObject(27, true, Types.BOOLEAN);
 
             final int rowsCount = preparedStatement.executeUpdate();
         }
@@ -157,7 +177,7 @@ class Legal {
 
     static void setNotActual(Connection connDB, int cutId) throws SQLException {
         final String sqlText = "UPDATE stat_gov_kz.g_legal SET is_actual = false WHERE cut_id < ?";
-        try(final PreparedStatement preparedStatement = connDB.prepareStatement(sqlText)) {
+        try (final PreparedStatement preparedStatement = connDB.prepareStatement(sqlText)) {
             preparedStatement.setInt(1, cutId);
             final int rowsCount = preparedStatement.executeUpdate();
         }

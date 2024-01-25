@@ -16,7 +16,7 @@ import java.io.InputStream;
  * ImportStatGovKz Application
  *
  */
-public class App 
+public class App
 {
     public static void main(String[] args)  {
         try (Connection connDB = ConnDB.getConnection()) {
@@ -43,29 +43,39 @@ public class App
                     return;
                 }
                 // Получаем строку ситуационных кодов разделенных ","
-                String sitCodes = SitCode.getAllCodes(connDB);
+                final String sitCodes = SitCode.getAllCodes(connDB);
+                final int katoId = 741880; // Казахстан
                 int typeLegalUnitId;
                 String[] files;
                 FilenameFilter filter = (f, name) -> name.endsWith(".xlsx");
-                final String sqlText2 = "SELECT id FROM stat_gov_kz.d_type_legal_unit WHERE is_updated = true";
                 try (Statement statement = connDB.createStatement();
-                     ResultSet resultSet = statement.executeQuery(sqlText2)) {
+                     ResultSet resultSet = statement.executeQuery("SELECT id FROM stat_gov_kz.d_type_legal_unit WHERE is_updated = true")) {
                     while (resultSet.next()) {
                         typeLegalUnitId = resultSet.getInt("id");
                         // скачиваем файл
-                        String fileName = new FileDownloader(proxy).getFile(cutId,
-                                                                            typeLegalUnitId,
-                                                                            sitCodes,
-                                                                            props.getProperty("downloadDir"));
-                        // разархивируем файл
-                        String unzipPath = props.getProperty("downloadDir") + "\\" + fileName.split("\\.")[0];
-                        new UnzipUtility().unzip(props.getProperty("downloadDir") + "\\" + fileName, unzipPath);
-                        // загружаем данные с файла(ов)
-                        files = new File(unzipPath).list(filter);
-                        if (files != null) {
-                            for (String file : files) {
-                                new ExcelDataLoader(typeLegalUnitId, cutId).loadDataFile(unzipPath + "\\" + file,
-                                                                                            Integer.parseInt(props.getProperty("countLoadThreads")));
+                        try (Statement statementOKED = connDB.createStatement();
+                            ResultSet resultSetOKED = statementOKED.executeQuery("SELECT item_id FROM stat_gov_kz.oked_list")) {
+                            while (resultSetOKED.next()) {
+                                String fileName = new FileDownloader(proxy).getFile(cutId,
+                                        typeLegalUnitId,
+                                        sitCodes,
+                                        resultSetOKED.getInt("item_id"),
+                                        katoId,
+                                        props.getProperty("downloadDir"));
+                                if (fileName == null) {
+                                    continue;
+                                }
+                                // разархивируем файл
+                                String unzipPath = props.getProperty("downloadDir") + "\\" + fileName.split("\\.")[0];
+                                new UnzipUtility().unzip(props.getProperty("downloadDir") + "\\" + fileName, unzipPath);
+                                // загружаем данные с файла(ов)
+                                files = new File(unzipPath).list(filter);
+                                if (files != null) {
+                                    for (String file : files) {
+                                        new ExcelDataLoader(typeLegalUnitId, cutId).loadDataFile(unzipPath + "\\" + file,
+                                                Integer.parseInt(props.getProperty("countLoadThreads")));
+                                    }
+                                }
                             }
                         }
                     }

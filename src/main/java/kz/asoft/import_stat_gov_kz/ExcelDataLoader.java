@@ -66,7 +66,7 @@ class ExcelDataLoader {
 
                 Legal legal = new Legal(cutId, typeLegalUnitId);
 
-                String[] aRow = new String[16];
+                String[] aRow = new String[22];
                 rowLoop:
                 for (Row r : this.sheet) {
 //                if (r.getRowNum() == 100) {
@@ -89,7 +89,7 @@ class ExcelDataLoader {
                 legal.close();
 
             } catch (Exception e) {
-                throw new RuntimeException();
+                System.out.println(e.getMessage());
             }
         }
     }
