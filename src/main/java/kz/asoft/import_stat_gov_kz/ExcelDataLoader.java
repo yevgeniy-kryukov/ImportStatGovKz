@@ -10,15 +10,20 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 class ExcelDataLoader {
     private final int typeLegalUnitId;
 
     private final int cutId;
 
-    ExcelDataLoader(int typeLegalUnitId, int cutId) {
+    private final Logger logger;
+
+    ExcelDataLoader(final int typeLegalUnitId, final int cutId, final Logger logger) {
         this.cutId = cutId;
         this.typeLegalUnitId = typeLegalUnitId;
+        this.logger = logger;
     }
 
     void loadDataFile(String fileLocation, int countLoadThreads) throws Exception {
@@ -89,7 +94,7 @@ class ExcelDataLoader {
                 legal.close();
 
             } catch (Exception e) {
-                System.out.println(e.getMessage());
+                logger.log(Level.WARNING, "Exception", e);
             }
         }
     }

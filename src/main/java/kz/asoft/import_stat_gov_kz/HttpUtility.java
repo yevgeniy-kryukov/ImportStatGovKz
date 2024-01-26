@@ -11,28 +11,21 @@ public class HttpUtility {
         this.proxy = proxy;
     }
 
-    public String get(String strURL) throws IOException  {
+    public String get(final String strURL) throws IOException  {
         try {
-            // Получение списка срезов
-            URL url = new URL(strURL);
-            HttpURLConnection conn;
-            if (proxy != null) {
-                conn = (HttpURLConnection) url.openConnection(proxy);
-            } else {
-                conn = (HttpURLConnection) url.openConnection();
-            }
+            final URL url = new URL(strURL);
+            final HttpURLConnection conn = (HttpURLConnection) (proxy != null ? url.openConnection(proxy) : url.openConnection());
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Accept", "application/json");
 
             if (conn.getResponseCode() != 200) {
-                throw new RuntimeException("Failed : HTTP error code : "
-                        + conn.getResponseCode());
+                throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode());
             }
 
-            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
+            final BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
 
             String output = "";
-            StringBuilder jsonString = new StringBuilder();
+            final StringBuilder jsonString = new StringBuilder();
             while ((output = br.readLine()) != null) {
                 jsonString.append(output);
             }
@@ -52,20 +45,15 @@ public class HttpUtility {
         return null;
     }
 
-    public String post(String strURL, String strParam) throws IOException  {
+    public String post(final String strURL, final String strParam) throws IOException  {
         try {
-            URL url = new URL(strURL);
-            HttpURLConnection conn;
-            if (proxy != null) {
-                conn = (HttpURLConnection) url.openConnection(proxy);
-            } else {
-                conn = (HttpURLConnection) url.openConnection();
-            }
+            final URL url = new URL(strURL);
+            final HttpURLConnection conn = (HttpURLConnection) (proxy != null ? url.openConnection(proxy) : url.openConnection());
             conn.setDoOutput(true);
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json");
 
-            OutputStream os = conn.getOutputStream();
+            final OutputStream os = conn.getOutputStream();
             os.write(strParam.getBytes());
             os.flush();
 
@@ -74,10 +62,10 @@ public class HttpUtility {
                         + conn.getResponseCode());
             }
 
-            BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+            final BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
 
             String output = "";
-            StringBuilder jsonString = new StringBuilder();
+            final StringBuilder jsonString = new StringBuilder();
             while ((output = br.readLine()) != null) {
                 jsonString.append(output);
             }
@@ -101,37 +89,29 @@ public class HttpUtility {
      * Downloads a file from a URL
      * @param fileURL HTTP URL of the file to be downloaded
      * @param saveDir path of the directory to save the file
-     * @param proxy
      * @throws IOException
      */
-    public String downloadFile(String fileURL, String saveDir) throws Exception {
-        URL url = new URL(fileURL);
-        HttpURLConnection httpConn;
-        if (proxy != null) {
-            httpConn = (HttpURLConnection) url.openConnection(proxy);
-        } else {
-            httpConn = (HttpURLConnection) url.openConnection();
-        }
-        int responseCode = httpConn.getResponseCode();
+    public String downloadFile(final String fileURL, final String saveDir) throws Exception {
+        final URL url = new URL(fileURL);
+        final HttpURLConnection httpConn = (HttpURLConnection) (proxy != null ? url.openConnection(proxy) : url.openConnection());
+        final int responseCode = httpConn.getResponseCode();
 
         String fileName = "";
         // always check HTTP response code first
         if (responseCode == HttpURLConnection.HTTP_OK) {
-            String disposition = httpConn.getHeaderField("Content-Disposition");
-            String contentType = httpConn.getContentType();
-            int contentLength = httpConn.getContentLength();
+            final String disposition = httpConn.getHeaderField("Content-Disposition");
+//            String contentType = httpConn.getContentType();
+//            int contentLength = httpConn.getContentLength();
 
             if (disposition != null) {
                 // extracts file name from header field
-                int index = disposition.indexOf("filename=");
+                final int index = disposition.indexOf("filename=");
                 if (index > 0) {
-                    fileName = disposition.substring(index + 10,
-                            disposition.length() - 1);
+                    fileName = disposition.substring(index + 10, disposition.length() - 1);
                 }
             } else {
                 // extracts file name from URL
-                fileName = fileURL.substring(fileURL.lastIndexOf("/") + 1,
-                        fileURL.length());
+                fileName = fileURL.substring(fileURL.lastIndexOf("/") + 1, fileURL.length());
             }
 
 //            System.out.println("Content-Type = " + contentType);
@@ -140,11 +120,11 @@ public class HttpUtility {
 //            System.out.println("fileName = " + fileName);
 
             // opens input stream from the HTTP connection
-            InputStream inputStream = httpConn.getInputStream();
-            String saveFilePath = saveDir + File.separator + fileName;
+            final InputStream inputStream = httpConn.getInputStream();
+            final String saveFilePath = saveDir + File.separator + fileName;
 
             // opens an output stream to save into file
-            FileOutputStream outputStream = new FileOutputStream(saveFilePath);
+            final FileOutputStream outputStream = new FileOutputStream(saveFilePath);
 
             int bytesRead = -1;
             final int BUFFER_SIZE = 4096;
