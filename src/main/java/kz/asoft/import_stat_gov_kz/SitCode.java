@@ -9,9 +9,9 @@ class SitCode {
 
     static String getAllCodes(Connection connDB) throws SQLException {
         String codes = "";
-        final String sqlText = "SELECT string_agg(id::character varying, ',') as lst " +
+        final String sqlText = "SELECT string_agg(id::character varying, ','  ORDER BY id) as lst " +
                                 "FROM stat_gov_kz.d_situational_code " +
-                                "WHERE is_updated = true";
+                                "WHERE is_updated = true and is_in_group_active = true";
         try (Statement statement = connDB.createStatement();
              ResultSet resultSet = statement.executeQuery(sqlText)) {
             while (resultSet.next()) {

@@ -19,7 +19,7 @@ class Legal {
     }
 
     private Long getGlPersonId(String iin_bin) throws SQLException {
-        final String sqlText = "SELECT etl_util_pkg.get_gl_person_id(?) as gl_person_id";
+        final String sqlText = "SELECT etl.etl_util_pkg.get_gl_person_id(?) as gl_person_id";
         try (final PreparedStatement preparedStatement = this.connDB.prepareStatement(sqlText)) {
             preparedStatement.setString(1, iin_bin);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -34,7 +34,7 @@ class Legal {
     private Long createGlPersonId(String iin_bin, String personName) throws SQLException {
         final int hDBSourceId = 69;
         final int hCountryId = 105;
-        final String sqlText = "SELECT etl_util_pkg.create_person_gl(?,?,?,?,?,?,?,?) as gl_person_id";
+        final String sqlText = "SELECT etl.etl_util_pkg.create_person_gl(?,?,?,?,?,?,?,?) as gl_person_id";
         try (final PreparedStatement preparedStatement = this.connDB.prepareStatement(sqlText)) {
             String surname = null;
             String name = null;
