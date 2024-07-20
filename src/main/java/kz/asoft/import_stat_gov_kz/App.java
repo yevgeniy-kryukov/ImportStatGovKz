@@ -101,7 +101,7 @@ public class App
                 throw e;
             }
         } catch (Exception e2) {
-            e2.printStackTrace();
+            System.out.println(e2.getMessage());
         }
     }
 

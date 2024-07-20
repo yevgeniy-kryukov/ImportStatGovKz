@@ -36,13 +36,15 @@ class Legal {
         final int hCountryId = 105;
         final String sqlText = "SELECT etl_util_pkg.create_person_gl(?,?,?,?,?,?,?,?) as gl_person_id";
         try (final PreparedStatement preparedStatement = this.connDB.prepareStatement(sqlText)) {
-            String[] aName = personName.split(" ");
-            String surname = "";
-            String name = "";
-            String middlename = "";
-            if (aName.length > 0) surname = aName[0];
-            if (aName.length > 1) name = aName[1];
-            if (aName.length > 2) middlename = aName[2];
+            String surname = null;
+            String name = null;
+            String middlename = null;
+            if (personName != null) {
+                String[] aName = personName.split(" ");
+                if (aName.length > 0) surname = aName[0];
+                if (aName.length > 1) name = aName[1];
+                if (aName.length > 2) middlename = aName[2];
+            }
             preparedStatement.setString(1, iin_bin);
             preparedStatement.setString(2, surname);
             preparedStatement.setString(3, name);
@@ -89,9 +91,12 @@ class Legal {
                 "type_legal_unit_id," +
                 "leader_gl_person_id," +
                 "actualization_dt," +
-                "is_actual" +
+                "is_actual," +
+                "leader_lname," +
+                "leader_fname," +
+                "leader_mname" +
                 ") " +
-                "VALUES (nextval('stat_gov_kz.g_legal_seq'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
+                "VALUES (nextval('stat_gov_kz.g_legal_seq'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
                 "ON CONFLICT ON CONSTRAINT g_legal_bin_iin_uk DO UPDATE SET " +
                 "full_name_kz = EXCLUDED.full_name_kz," +
                 "full_name = EXCLUDED.full_name," +
@@ -117,14 +122,28 @@ class Legal {
                 "cut_id = EXCLUDED.cut_id," +
                 "type_legal_unit_id = EXCLUDED.type_legal_unit_id," +
                 "actualization_dt = EXCLUDED.actualization_dt," +
-                "is_actual = EXCLUDED.is_actual";
+                "is_actual = EXCLUDED.is_actual," +
+                "leader_lname = EXCLUDED.leader_lname," +
+                "leader_fname = EXCLUDED.leader_fname," +
+                "leader_mname = EXCLUDED.leader_mname";
+
         try (final PreparedStatement preparedStatement = this.connDB.prepareStatement(sqlText)) {
             String iinBin = aRow[0];
             if (iinBin.length() != 12) {
                 return;
             }
 
-            String leaderName = aRow[21].isEmpty() ? "-" : aRow[21];
+            String leaderName = aRow[21].isEmpty() ? null : aRow[21];
+            String leaderLname = null;
+            String leaderFname = null;
+            String leaderMname = null;
+
+            if (leaderName != null) {
+                String[] leaderNameParts = leaderName.split(" ");
+                if (leaderNameParts.length > 0) leaderLname = leaderNameParts[0];
+                if (leaderNameParts.length > 1) leaderFname = leaderNameParts[1];
+                if (leaderNameParts.length > 2) leaderMname = leaderNameParts[2];
+            }
 
             Long leaderGlPersonId = null;
             if (Integer.parseInt(iinBin.substring(4, 5)) < 4) {  // ИИН, только для физ.лиц
@@ -166,6 +185,10 @@ class Legal {
             preparedStatement.setObject(25, leaderGlPersonId, Types.NUMERIC);
             preparedStatement.setObject(26, LocalDateTime.now(), Types.TIMESTAMP);
             preparedStatement.setObject(27, true, Types.BOOLEAN);
+
+            preparedStatement.setObject(28, leaderLname, Types.VARCHAR);
+            preparedStatement.setObject(29, leaderFname, Types.VARCHAR);
+            preparedStatement.setObject(30, leaderMname, Types.VARCHAR);
 
             final int rowsCount = preparedStatement.executeUpdate();
         }

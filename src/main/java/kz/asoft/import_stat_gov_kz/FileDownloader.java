@@ -11,7 +11,7 @@ class FileDownloader {
     }
 
     public String getFile(int cutId, int typeLegalUnitId, String listSitCodes, int okedId, int katoId, String downloadDir) throws Exception  {
-        System.out.println("okedID=" + okedId);
+        //System.out.println("okedID=" + okedId);
 
         // Отправление запроса на выборку и получение номера заявки
         final String input = "{\"conditions\":[" +
@@ -44,7 +44,7 @@ class FileDownloader {
                     return null;
                 }
             } else {
-                throw new Exception("Ошибка! Не возможно проверить статус заявки");
+                throw new Exception("Ошибка! Не возможно проверить статус заявки. Ответ на запрос: " + jsonString3);
             }
 
             Thread.sleep(60000);
