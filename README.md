@@ -6,7 +6,7 @@
 
 app.properties:
 
-    downloadDir = c:\\temp
+    downloadDir = d:\\temp
 
     useProxy = false
 
@@ -16,7 +16,7 @@ app.properties:
 
     countLoadThreads = 5
 
-    logPath = d:/logs
+    logPath = d:\\logs
 
 database.properties:
 
