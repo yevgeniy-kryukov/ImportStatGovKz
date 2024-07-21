@@ -198,9 +198,10 @@ class Legal {
         this.connDB.close();
     }
 
-    static void setNotActual(Connection connDB, int cutId) throws SQLException {
+    static void setNotActual(int cutId) throws Exception {
         final String sqlText = "UPDATE stat_gov_kz.g_legal SET is_actual = false WHERE cut_id < ?";
-        try (final PreparedStatement preparedStatement = connDB.prepareStatement(sqlText)) {
+        try (final Connection connDB = ConnDB.getConnection();
+             final PreparedStatement preparedStatement = connDB.prepareStatement(sqlText)) {
             preparedStatement.setInt(1, cutId);
             final int rowsCount = preparedStatement.executeUpdate();
         }

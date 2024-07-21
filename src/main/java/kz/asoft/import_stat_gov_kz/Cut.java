@@ -7,7 +7,7 @@ import java.sql.*;
 
 class Cut {
 
-    static Integer getCutId(final Connection connDB, final Proxy proxy) throws Exception {
+    static Integer getCutId(final Proxy proxy) throws Exception {
         int cutId = -1;
 
         // Получение списка срезов
@@ -32,14 +32,15 @@ class Cut {
         }
 
         // Сохраняем срез
-        if (!isExistsCut(connDB, cutId)) addCut(connDB, cutId, cutName);
+        if (!isExistsCut(cutId)) addCut(cutId, cutName);
 
         return cutId;
     }
 
-    private static boolean isExistsCut(final Connection connDB, final int id) throws SQLException {
+    private static boolean isExistsCut(final int id) throws Exception {
         final String sqlText = "SELECT 1 FROM stat_gov_kz.d_cut WHERE id = ?";
-        try (final PreparedStatement preparedStatement = connDB.prepareStatement(sqlText)) {
+        try (final Connection connDB = ConnDB.getConnection();
+             final PreparedStatement preparedStatement = connDB.prepareStatement(sqlText)) {
             preparedStatement.setInt(1, id);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
@@ -50,9 +51,10 @@ class Cut {
         return false;
     }
 
-    private static void addCut(final Connection connDB, final int id, final String name) throws SQLException {
+    private static void addCut(final int id, final String name) throws Exception {
         final String sqlText = "INSERT INTO stat_gov_kz.d_cut (id, name) VALUES (?, ?)";
-        try (final PreparedStatement preparedStatement = connDB.prepareStatement(sqlText)) {
+        try (final Connection connDB = ConnDB.getConnection();
+             final PreparedStatement preparedStatement = connDB.prepareStatement(sqlText)) {
             preparedStatement.setInt(1, id);
             preparedStatement.setString(2, name);
             final int rowsCount = preparedStatement.executeUpdate();

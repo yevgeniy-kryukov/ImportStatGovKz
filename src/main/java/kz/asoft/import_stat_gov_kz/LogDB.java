@@ -3,20 +3,17 @@ package kz.asoft.import_stat_gov_kz;
 import java.sql.*;
 
 class LogDB {
-    private final Connection connDB;
-
     private Integer id;
 
     private final Integer cutId;
 
     private boolean isStarted = false;
 
-    LogDB(Connection connDB, Integer cutId) {
-        this.connDB = connDB;
+    LogDB(Integer cutId) {
         this.cutId = cutId;
     }
 
-    boolean start() throws SQLException {
+    boolean start() throws Exception {
         final Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 
         if (isExistsUnfinishedProcess()) {
@@ -31,7 +28,8 @@ class LogDB {
 
         final String sqlText = "INSERT INTO stat_gov_kz.j_loader (id, started, cut_id) " +
                 "VALUES (nextval('stat_gov_kz.j_loader_seq'), localtimestamp, ?) returning id";
-        try (final PreparedStatement preparedStatement = this.connDB.prepareStatement(sqlText)) {
+        try (final Connection connDB = ConnDB.getConnection();
+            final PreparedStatement preparedStatement = connDB.prepareStatement(sqlText)) {
             preparedStatement.setInt(1, cutId);
             try (final ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
@@ -44,22 +42,24 @@ class LogDB {
         return true;
     }
 
-    void finish(final String errorText) throws SQLException {
+    void finish(final String errorText) throws Exception {
         if (!this.isStarted) {
             return;
         }
 
         final String sqlText = "UPDATE stat_gov_kz.j_loader SET finished = localtimestamp, error_text = ? WHERE id = ?";
-        try (final PreparedStatement preparedStatement = this.connDB.prepareStatement(sqlText)) {
+        try (final Connection connDB = ConnDB.getConnection();
+             final PreparedStatement preparedStatement = connDB.prepareStatement(sqlText)) {
             preparedStatement.setString(1, errorText);
             preparedStatement.setInt(2, id);
             final int rowsCount = preparedStatement.executeUpdate();
         }
     }
 
-    private boolean isExistsUnfinishedProcess() throws SQLException {
+    private boolean isExistsUnfinishedProcess() throws Exception {
         final String sqlText = "SELECT id FROM stat_gov_kz.j_loader WHERE finished IS NULL LIMIT 1";
-        try (final Statement statement = this.connDB.createStatement();
+        try (final Connection connDB = ConnDB.getConnection();
+             final Statement statement = connDB.createStatement();
              final ResultSet resultSet = statement.executeQuery(sqlText)) {
             if (resultSet.next()) {
                 return true;
@@ -68,12 +68,13 @@ class LogDB {
         return false;
     }
 
-    private boolean isLoadedCut(final int cutId) throws SQLException {
+    private boolean isLoadedCut(final int cutId) throws Exception {
         final String sqlText = "SELECT id " +
                 "FROM stat_gov_kz.j_loader " +
                 "WHERE finished IS NOT NULL and error_text IS NULL and cut_id = ?" +
                 "LIMIT 1";
-        try (final PreparedStatement preparedStatement = this.connDB.prepareStatement(sqlText)) {
+        try (final Connection connDB = ConnDB.getConnection();
+             final PreparedStatement preparedStatement = connDB.prepareStatement(sqlText)) {
             preparedStatement.setInt(1, cutId);
             try (final ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {

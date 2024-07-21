@@ -52,10 +52,10 @@ public class App {
     }
 
     private static void loadDataFromFiles(final int typeLegalUnitId,
-                                         final int cutId,
-                                         final Logger logger,
-                                         final String unzipPath,
-                                         final Properties props) throws Exception {
+                                          final int cutId,
+                                          final Logger logger,
+                                          final String unzipPath,
+                                          final Properties props) throws Exception {
         final FilenameFilter filter = (f, name) -> name.endsWith(".xlsx");
         final String[] files = new File(unzipPath).list(filter);
         if (files != null) {
@@ -73,8 +73,7 @@ public class App {
     }
 
     public static void main(String[] args) {
-        try (final Connection connDB = ConnDB.getConnection()) {
-
+        try {
             LogDB logDB = null;
             try {
                 PropertyConfigurator.configure("log4j.properties");
@@ -85,20 +84,21 @@ public class App {
                 // Если необходимо используем прокси
                 final Proxy proxy = getProxy(props);
                 // Получаем актульный идентификатор среза данных
-                final Integer cutId = Cut.getCutId(connDB, proxy);
+                final Integer cutId = Cut.getCutId(proxy);
                 // Стартуем журналирование
-                logDB = new LogDB(connDB, cutId);
+                logDB = new LogDB(cutId);
                 if (!logDB.start()) {
                     return;
                 }
                 // Получаем строку ситуационных кодов разделенных ","
-                final String sitCodes = SitCode.getAllCodes(connDB);
+                final String sitCodes = SitCode.getAllCodes();
                 final int katoId = 741880; // Казахстан
                 int typeLegalUnitId;
                 int okedId;
                 String fileName;
                 String unzipPath;
-                try (final Statement statement = connDB.createStatement();
+                try (final Connection connDB = ConnDB.getConnection();
+                     final Statement statement = connDB.createStatement();
                      final ResultSet resultSet = statement.executeQuery("SELECT id FROM stat_gov_kz.d_type_legal_unit WHERE is_updated = true")) {
                     while (resultSet.next()) {
                         typeLegalUnitId = resultSet.getInt("id");
@@ -121,7 +121,7 @@ public class App {
                     }
                 }
                 // Установка признака о неактульности
-                Legal.setNotActual(connDB, cutId);
+                Legal.setNotActual(cutId);
                 // Завершаем журналирование
                 logDB.finish(null);
             } catch (Exception e) {
