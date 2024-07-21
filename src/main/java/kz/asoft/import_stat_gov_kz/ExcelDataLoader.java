@@ -67,7 +67,7 @@ class ExcelDataLoader {
 
         public void run() {
             try {
-                System.out.println(sheet.getSheetName());
+                //System.out.println(sheet.getSheetName());
 
                 Legal legal = new Legal(cutId, typeLegalUnitId);
 

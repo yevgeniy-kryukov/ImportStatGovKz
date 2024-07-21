@@ -31,7 +31,7 @@ class LogDB {
 
         final String sqlText = "INSERT INTO stat_gov_kz.j_loader (id, started, cut_id) " +
                 "VALUES (nextval('stat_gov_kz.j_loader_seq'), localtimestamp, ?) returning id";
-        try (final PreparedStatement preparedStatement = connDB.prepareStatement(sqlText)) {
+        try (final PreparedStatement preparedStatement = this.connDB.prepareStatement(sqlText)) {
             preparedStatement.setInt(1, cutId);
             try (final ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
@@ -50,7 +50,7 @@ class LogDB {
         }
 
         final String sqlText = "UPDATE stat_gov_kz.j_loader SET finished = localtimestamp, error_text = ? WHERE id = ?";
-        try (final PreparedStatement preparedStatement = connDB.prepareStatement(sqlText)) {
+        try (final PreparedStatement preparedStatement = this.connDB.prepareStatement(sqlText)) {
             preparedStatement.setString(1, errorText);
             preparedStatement.setInt(2, id);
             final int rowsCount = preparedStatement.executeUpdate();

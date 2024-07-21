@@ -10,7 +10,7 @@ import java.util.Properties;
 class ConnDB {
 
     static Connection getConnection() throws Exception {
-        Class.forName("org.postgresql.Driver").getDeclaredConstructor().newInstance();
+        Class.forName("com.edb.Driver").getDeclaredConstructor().newInstance();
         final Properties props = new Properties();
         try (InputStream in = Files.newInputStream(Paths.get("database.properties"))) {
             props.load(in);
