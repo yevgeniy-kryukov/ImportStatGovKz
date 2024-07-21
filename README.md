@@ -6,7 +6,7 @@
 
 app.properties:
 
-    downloadDir = c:\\windows\\temp
+    downloadDir = c:\\temp
 
     useProxy = false
 
