@@ -64,68 +64,69 @@ class Legal {
 
     void saveRow(String[] aRow) throws Exception {
         final String sqlText = "INSERT INTO stat_gov_kz.g_legal (" +
-                "id," +
-                "bin_iin," +
-                "full_name_kz," +
-                "full_name," +
-                "date_reg," +
-                "oked_main_code," +
-                "oked_main_activity_name_kz," +
-                "oked_main_activity_name," +
-                "secondary_oked_code_list," +
-                "krp_code," +
-                "krp_name_kz," +
-                "krp_name," +
-                "kse_code, " +
-                "kse_name_kz, " +
-                "kse_name, " +
-                "kfs_code, " +
-                "kfs_name_kz, " +
-                "kfs_name, " +
-                "kato_code," +
-                "locality_name_kz," +
-                "locality_name," +
-                "legal_address," +
-                "leader_name," +
-                "cut_id," +
-                "type_legal_unit_id," +
-                "leader_gl_person_id," +
-                "actualization_dt," +
-                "is_actual," +
-                "leader_lname," +
-                "leader_fname," +
-                "leader_mname" +
+                    "id," +
+                    "bin_iin," +
+                    "full_name_kz," +
+                    "full_name," +
+                    "date_reg," +
+                    "oked_main_code," +
+                    "oked_main_activity_name_kz," +
+                    "oked_main_activity_name," +
+                    "secondary_oked_code_list," +
+                    "krp_code," +
+                    "krp_name_kz," +
+                    "krp_name," +
+                    "kse_code, " +
+                    "kse_name_kz, " +
+                    "kse_name, " +
+                    "kfs_code, " +
+                    "kfs_name_kz, " +
+                    "kfs_name, " +
+                    "kato_code," +
+                    "locality_name_kz," +
+                    "locality_name," +
+                    "legal_address," +
+                    "leader_name," +
+                    "cut_id," +
+                    "type_legal_unit_id," +
+                    "leader_gl_person_id," +
+                    "actualization_dt," +
+                    "is_actual," +
+                    "leader_lname," +
+                    "leader_fname," +
+                    "leader_mname" +
                 ") " +
                 "VALUES (nextval('stat_gov_kz.g_legal_seq'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
                 "ON CONFLICT ON CONSTRAINT g_legal_bin_iin_uk DO UPDATE SET " +
-                "full_name_kz = EXCLUDED.full_name_kz," +
-                "full_name = EXCLUDED.full_name," +
-                "date_reg = EXCLUDED.date_reg," +
-                "oked_main_code = EXCLUDED.oked_main_code," +
-                "oked_main_activity_name_kz = EXCLUDED.oked_main_activity_name_kz," +
-                "oked_main_activity_name = EXCLUDED.oked_main_activity_name," +
-                "secondary_oked_code_list = EXCLUDED.secondary_oked_code_list," +
-                "krp_code = EXCLUDED.krp_code," +
-                "krp_name_kz = EXCLUDED.krp_name_kz," +
-                "krp_name = EXCLUDED.krp_name," +
-                "kse_code = EXCLUDED.kse_code," +
-                "kse_name_kz = EXCLUDED.kse_name_kz," +
-                "kse_name = EXCLUDED.kse_name," +
-                "kfs_code = EXCLUDED.kfs_code," +
-                "kfs_name_kz = EXCLUDED.kfs_name_kz," +
-                "kfs_name = EXCLUDED.kfs_name," +
-                "kato_code = EXCLUDED.kato_code," +
-                "locality_name_kz = EXCLUDED.locality_name_kz," +
-                "locality_name = EXCLUDED.locality_name," +
-                "legal_address = EXCLUDED.legal_address," +
-                "leader_name = EXCLUDED.leader_name," +
-                "cut_id = EXCLUDED.cut_id," +
-                "type_legal_unit_id = EXCLUDED.type_legal_unit_id," +
-                "actualization_dt = EXCLUDED.actualization_dt," +
-                "is_actual = EXCLUDED.is_actual," +
-                "leader_lname = EXCLUDED.leader_lname," +
-                "leader_fname = EXCLUDED.leader_fname," +
-                "leader_mname = EXCLUDED.leader_mname";
+                    "full_name_kz = EXCLUDED.full_name_kz," +
+                    "full_name = EXCLUDED.full_name," +
+                    "date_reg = EXCLUDED.date_reg," +
+                    "oked_main_code = EXCLUDED.oked_main_code," +
+                    "oked_main_activity_name_kz = EXCLUDED.oked_main_activity_name_kz," +
+                    "oked_main_activity_name = EXCLUDED.oked_main_activity_name," +
+                    "secondary_oked_code_list = EXCLUDED.secondary_oked_code_list," +
+                    "krp_code = EXCLUDED.krp_code," +
+                    "krp_name_kz = EXCLUDED.krp_name_kz," +
+                    "krp_name = EXCLUDED.krp_name," +
+                    "kse_code = EXCLUDED.kse_code," +
+                    "kse_name_kz = EXCLUDED.kse_name_kz," +
+                    "kse_name = EXCLUDED.kse_name," +
+                    "kfs_code = EXCLUDED.kfs_code," +
+                    "kfs_name_kz = EXCLUDED.kfs_name_kz," +
+                    "kfs_name = EXCLUDED.kfs_name," +
+                    "kato_code = EXCLUDED.kato_code," +
+                    "locality_name_kz = EXCLUDED.locality_name_kz," +
+                    "locality_name = EXCLUDED.locality_name," +
+                    "legal_address = EXCLUDED.legal_address," +
+                    "leader_name = EXCLUDED.leader_name," +
+                    "cut_id = EXCLUDED.cut_id," +
+                    "type_legal_unit_id = EXCLUDED.type_legal_unit_id," +
+                    "actualization_dt = EXCLUDED.actualization_dt," +
+                    "is_actual = EXCLUDED.is_actual," +
+                    "leader_lname = EXCLUDED.leader_lname," +
+                    "leader_fname = EXCLUDED.leader_fname," +
+                    "leader_mname = EXCLUDED.leader_mname " +
+                "WHERE cut_id <> EXCLUDED.cut_id";
 
         try (final PreparedStatement preparedStatement = this.connDB.prepareStatement(sqlText)) {
             String iinBin = aRow[0];
