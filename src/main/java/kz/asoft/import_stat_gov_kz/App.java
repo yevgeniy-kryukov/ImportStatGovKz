@@ -131,7 +131,7 @@ public class App {
                         unzipPath = unzipFile(props, fileName);
                         // загружаем данные с файла(ов)
                         loadDataFromFiles(typeLegalUnitId, cutId, logger, unzipPath, props);
-                        Thread.sleep(60000);
+                        Thread.sleep(30000);
                     }
                 }
                 // Установка признака о неактульности

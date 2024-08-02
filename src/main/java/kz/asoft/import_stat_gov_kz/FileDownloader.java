@@ -32,7 +32,7 @@ class FileDownloader {
         String jsonString3 = "";
         JSONObject jo3 = null;
         String fileGuid = "";
-        for (int i = 1; i <= 180; i++) {
+        for (int i = 1; i <= 30; i++) {
             jsonString3 = new HttpUtility(proxy).get("https://stat.gov.kz/api/sbr/requestResult/" + objNumber + "/ru");
             jo3 = new JSONObject(jsonString3);
 
