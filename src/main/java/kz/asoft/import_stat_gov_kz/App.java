@@ -12,7 +12,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.Properties;
+import java.util.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.io.InputStream;
@@ -72,6 +72,30 @@ public class App {
         return unzipPath;
     }
 
+    private static Set<Integer> getDTypeLegalUnit() throws Exception {
+        Set<Integer> dTypeLegalUnit = new LinkedHashSet<>();
+        try (final Connection connDB = ConnDB.getConnection();
+             final Statement statement = connDB.createStatement();
+             final ResultSet resultSet = statement.executeQuery("SELECT id FROM stat_gov_kz.d_type_legal_unit WHERE is_updated = true ORDER BY id")) {
+            while (resultSet.next()) {
+                dTypeLegalUnit.add(resultSet.getInt("id"));
+            }
+        }
+        return dTypeLegalUnit;
+    }
+
+    private static Set<Integer> getOkedIdList() throws Exception {
+        Set<Integer> okedIdList = new LinkedHashSet<>();
+        try (final Connection connDB = ConnDB.getConnection();
+             final Statement statement = connDB.createStatement();
+             final ResultSet resultSet = statement.executeQuery("SELECT item_id FROM stat_gov_kz.oked_list ORDER BY item_id")) {
+            while (resultSet.next()) {
+                okedIdList.add(resultSet.getInt("item_id"));
+            }
+        }
+        return okedIdList;
+    }
+
     public static void main(String[] args) {
         try {
             LogDB logDB = null;
@@ -93,31 +117,21 @@ public class App {
                 // Получаем строку ситуационных кодов разделенных ","
                 final String sitCodes = SitCode.getAllCodes();
                 final int katoId = 741880; // Казахстан
-                int typeLegalUnitId;
-                int okedId;
                 String fileName;
                 String unzipPath;
-                try (final Connection connDB = ConnDB.getConnection();
-                     final Statement statement = connDB.createStatement();
-                     final ResultSet resultSet = statement.executeQuery("SELECT id FROM stat_gov_kz.d_type_legal_unit WHERE is_updated = true")) {
-                    while (resultSet.next()) {
-                        typeLegalUnitId = resultSet.getInt("id");
-                        try (final Statement statementOKED = connDB.createStatement();
-                             final ResultSet resultSetOKED = statementOKED.executeQuery("SELECT item_id FROM stat_gov_kz.oked_list")) {
-                            while (resultSetOKED.next()) {
-                                okedId = resultSetOKED.getInt("item_id");
-                                logger.log(Level.INFO, "loading data with okedID = " + okedId + ", typeLegalUnitID = " + typeLegalUnitId);
-                                // скачиваем файл
-                                fileName = new FileDownloader(proxy).getFile(cutId, typeLegalUnitId, sitCodes, okedId, katoId, props.getProperty("downloadDir"));
-                                if (fileName == null) {
-                                    continue;
-                                }
-                                // разархивируем файл
-                                unzipPath = unzipFile(props, fileName);
-                                // загружаем данные с файла(ов)
-                                loadDataFromFiles(typeLegalUnitId, cutId, logger, unzipPath, props);
-                            }
+                for (Integer typeLegalUnitId : getDTypeLegalUnit()) {
+                    for (Integer okedId : getOkedIdList()) {
+                        logger.log(Level.INFO, "loading data with okedID = " + okedId + ", typeLegalUnitID = " + typeLegalUnitId);
+                        // скачиваем файл
+                        fileName = new FileDownloader(proxy).getFile(cutId, typeLegalUnitId, sitCodes, okedId, katoId, props.getProperty("downloadDir"));
+                        if (fileName == null) {
+                            continue;
                         }
+                        // разархивируем файл
+                        unzipPath = unzipFile(props, fileName);
+                        // загружаем данные с файла(ов)
+                        loadDataFromFiles(typeLegalUnitId, cutId, logger, unzipPath, props);
+                        Thread.sleep(60000);
                     }
                 }
                 // Установка признака о неактульности
