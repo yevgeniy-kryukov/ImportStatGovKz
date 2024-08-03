@@ -7,10 +7,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.nio.file.Files;
@@ -84,13 +81,15 @@ public class App {
         return dTypeLegalUnit;
     }
 
-    private static Set<Integer> getOkedIdList() throws Exception {
+    private static Set<Integer> getOkedIdList(final int fromItemId) throws Exception {
         Set<Integer> okedIdList = new LinkedHashSet<>();
         try (final Connection connDB = ConnDB.getConnection();
-             final Statement statement = connDB.createStatement();
-             final ResultSet resultSet = statement.executeQuery("SELECT item_id FROM stat_gov_kz.oked_list ORDER BY item_id")) {
-            while (resultSet.next()) {
-                okedIdList.add(resultSet.getInt("item_id"));
+             final PreparedStatement preparedStatement = connDB.prepareStatement("SELECT item_id FROM stat_gov_kz.oked_list WHERE item_id > ? ORDER BY item_id")) {
+            preparedStatement.setInt(1, fromItemId);
+            try (final ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    okedIdList.add(resultSet.getInt("item_id"));
+                }
             }
         }
         return okedIdList;
@@ -120,17 +119,21 @@ public class App {
                 String fileName;
                 String unzipPath;
                 for (Integer typeLegalUnitId : getDTypeLegalUnit()) {
-                    for (Integer okedId : getOkedIdList()) {
+                    for (Integer okedId : getOkedIdList(JCut.getLastLoadOKED(cutId, typeLegalUnitId))) {
                         logger.log(Level.INFO, "loading data with okedID = " + okedId + ", typeLegalUnitID = " + typeLegalUnitId);
+                        JCut jCut = new JCut(cutId, typeLegalUnitId, okedId);
+                        jCut.start();
                         // скачиваем файл
                         fileName = new FileDownloader(proxy).getFile(cutId, typeLegalUnitId, sitCodes, okedId, katoId, props.getProperty("downloadDir"));
                         if (fileName == null) {
+                            jCut.end();
                             continue;
                         }
                         // разархивируем файл
                         unzipPath = unzipFile(props, fileName);
                         // загружаем данные с файла(ов)
                         loadDataFromFiles(typeLegalUnitId, cutId, logger, unzipPath, props);
+                        jCut.end();
                         Thread.sleep(30000);
                     }
                 }
