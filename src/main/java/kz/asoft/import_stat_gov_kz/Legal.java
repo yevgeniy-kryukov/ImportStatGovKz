@@ -63,7 +63,7 @@ class Legal {
     }
 
     void saveRow(String[] aRow) throws Exception {
-        final String sqlText = "INSERT INTO stat_gov_kz.g_legal (" +
+        final String sqlText = "INSERT INTO stat_gov_kz.g_legal as g (" +
                     "id," +
                     "bin_iin," +
                     "full_name_kz," +
@@ -126,7 +126,7 @@ class Legal {
                     "leader_lname = EXCLUDED.leader_lname," +
                     "leader_fname = EXCLUDED.leader_fname," +
                     "leader_mname = EXCLUDED.leader_mname " +
-                "WHERE cut_id <> EXCLUDED.cut_id";
+                "WHERE g.cut_id <> EXCLUDED.cut_id";
 
         try (final PreparedStatement preparedStatement = this.connDB.prepareStatement(sqlText)) {
             String iinBin = aRow[0];
