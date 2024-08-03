@@ -32,6 +32,7 @@ class FileDownloader {
         String jsonString3 = "";
         JSONObject jo3 = null;
         String fileGuid = "";
+        int maxCountTryAfterErr = 15;
         for (int i = 1; i <= 30; i++) {
             jsonString3 = new HttpUtility(proxy).get("https://stat.gov.kz/api/sbr/requestResult/" + objNumber + "/ru");
             jo3 = new JSONObject(jsonString3);
@@ -44,7 +45,11 @@ class FileDownloader {
                     return null;
                 }
             } else {
-                throw new Exception("Ошибка! Не возможно проверить статус заявки. Ответ на запрос: " + jsonString3);
+                if (maxCountTryAfterErr == 0) {
+                    throw new Exception("Ошибка! Не возможно проверить статус заявки. Ответ на запрос: " + jsonString3);
+                } else {
+                    maxCountTryAfterErr = maxCountTryAfterErr - 1;
+                }
             }
 
             Thread.sleep(60000);
